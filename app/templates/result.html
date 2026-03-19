@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="result">
+    <section class="final-price">
+        <h2>Pricing Recommendation</h2>
+        <div class="price-range">
+            <div class="price-card floor">
+                <span class="label">Floor</span>
+                <span class="amount">{{ "{:,.0f}".format(result.price_floor) }}</span>
+                <span class="currency">{{ result.currency.value }}</span>
+            </div>
+            <div class="price-card target">
+                <span class="label">Target</span>
+                <span class="amount">{{ "{:,.0f}".format(result.price_target) }}</span>
+                <span class="currency">{{ result.currency.value }}</span>
+            </div>
+            <div class="price-card stretch">
+                <span class="label">Stretch</span>
+                <span class="amount">{{ "{:,.0f}".format(result.price_stretch) }}</span>
+                <span class="currency">{{ result.currency.value }}</span>
+            </div>
+        </div>
+
+        <div class="meta">
+            <span class="structure">{{ result.suggested_structure }}</span>
+            <span class="confidence">Confidence: {{ "{:.0%}".format(result.confidence) }}</span>
+        </div>
+    </section>
+
+    <details class="research-context">
+        <summary>Client Research ({{ deal.business_url }})</summary>
+        <div class="research-content">
+            <p>{{ deal.client_context }}</p>
+        </div>
+    </details>
+
+    <section class="rationale">
+        <h3>Rationale</h3>
+        <p>{{ result.rationale }}</p>
+    </section>
+
+    <section class="assumptions">
+        <h3>Assumptions</h3>
+        <ul>
+            {% for a in result.assumptions %}
+            <li>{{ a }}</li>
+            {% endfor %}
+        </ul>
+    </section>
+
+    <section class="risk">
+        <h3>Risk Factors</h3>
+        <ul>
+            {% for r in result.risk_factors %}
+            <li>{{ r }}</li>
+            {% endfor %}
+        </ul>
+        <p class="risk-adj">Risk adjustment applied: +{{ "{:.0f}".format(result.risk_assessment.risk_adjustment_pct) }}%</p>
+    </section>
+
+    {% if result.validation %}
+    <section class="validation {% if result.validation.is_valid %}valid{% else %}invalid{% endif %}">
+        <h3>Validation: {% if result.validation.is_valid %}Passed{% else %}Issues Found{% endif %}</h3>
+        <p>{{ result.validation.summary }}</p>
+        {% if result.validation.issues %}
+        <h4>Issues</h4>
+        <ul>
+            {% for issue in result.validation.issues %}
+            <li>{{ issue }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        {% if result.validation.suggestions %}
+        <h4>Suggestions</h4>
+        <ul>
+            {% for s in result.validation.suggestions %}
+            <li>{{ s }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+    </section>
+    {% endif %}
+
+    <details class="specialists">
+        <summary>Specialist Agent Details</summary>
+        {% for p in result.specialist_proposals %}
+        <div class="specialist-card">
+            <h4>{{ p.agent_name }}</h4>
+            <div class="specialist-prices">
+                <span>Floor: {{ "{:,.0f}".format(p.price_floor) }}</span>
+                <span>Target: {{ "{:,.0f}".format(p.price_target) }}</span>
+                <span>Stretch: {{ "{:,.0f}".format(p.price_stretch) }}</span>
+                <span>Confidence: {{ "{:.0%}".format(p.confidence) }}</span>
+            </div>
+            <p>{{ p.reasoning }}</p>
+            {% if p.assumptions %}
+            <p class="assumptions-inline"><strong>Assumptions:</strong> {{ p.assumptions | join(", ") }}</p>
+            {% endif %}
+        </div>
+        {% endfor %}
+
+        <div class="specialist-card risk-card">
+            <h4>{{ result.risk_assessment.agent_name }}</h4>
+            <p>{{ result.risk_assessment.reasoning }}</p>
+            <p><strong>Factors:</strong> {{ result.risk_assessment.risk_factors | join(", ") }}</p>
+            <p><strong>Adjustment:</strong> +{{ "{:.0f}".format(result.risk_assessment.risk_adjustment_pct) }}%
+               | <strong>Confidence:</strong> {{ "{:.0%}".format(result.risk_assessment.confidence) }}</p>
+        </div>
+    </details>
+
+    <a href="/" class="back-btn">Price Another Deal</a>
+</div>
+{% endblock %}

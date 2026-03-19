@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="result">
+    <section class="validation invalid">
+        <h3>Pricing Failed</h3>
+        <p>{{ error }}</p>
+    </section>
+
+    {% if deal.client_context %}
+    <details class="research-context">
+        <summary>Client Research ({{ deal.business_url }})</summary>
+        <div class="research-content">
+            <p>{{ deal.client_context }}</p>
+        </div>
+    </details>
+    {% endif %}
+
+    <a href="/" class="back-btn">Try Again</a>
+</div>
+{% endblock %}
