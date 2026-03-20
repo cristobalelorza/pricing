@@ -1,0 +1,111 @@
+{
+  "timestamp": "2026-03-19T22:59:03.458995+00:00",
+  "deal": {
+    "service_description": "2-day AI productivity workshop for a corporate team of 20. Covers prompt engineering, AI tools for daily workflows, and hands-on exercises. Includes pre-workshop assessment and post-workshop resource kit.",
+    "business_url": "deloitte.com",
+    "client_context": "Deloitte is a global professional services network and one of the \"Big Four\" accounting firms, providing audit, consulting, financial advisory, risk management, and tax services. With over 457,000 professionals worldwide and annual revenue exceeding $65 billion, Deloitte operates as a network of member firms across more than 150 countries. The company helps organizations solve complex business challenges through industry-specific expertise, combining deep sector knowledge with technology-driven solutions. Deloitte serves clients across all major industries including financial services, technology, healthcare, government, and consumer business, with a strong focus on digital transformation, cybersecurity, data analytics, and emerging technologies like AI and cloud computing. The firm's global presence and comprehensive service offerings make it particularly well-suited for multinational corporations and large enterprises facing complex regulatory, operational, and technological challenges. Their services are especially relevant to organizations undergoing digital transformation, dealing with increased regulatory scrutiny, managing cybersecurity risks, or seeking to optimize their operations through data-driven insights and advanced analytics.",
+    "constraints": "Must deliver within 4 weeks, on-site at client office",
+    "budget_hint": null,
+    "currency": "USD"
+  },
+  "result": {
+    "price_floor": 14087.0,
+    "price_target": 20812.0,
+    "price_stretch": 26187.0,
+    "currency": "USD",
+    "suggested_structure": "Fixed project fee",
+    "rationale": "Synthesized floor at $14,087 (Cost Agent $12,250 + 15% risk adjustment) as baseline. Target at $20,812 reflects Market Agent's $18,000 plus risk adjustment, balancing enterprise pricing with value delivered. Stretch at $26,187 incorporates Market Agent's premium range. Value Agent's range ($4,500-$13,500) was notably lower than other inputs, suggesting conservative ROI assumptions. Risk adjustment of 15% applied to final numbers accounts for timeline pressure and first-time engagement. Fixed project fee structure aligns with corporate procurement preferences and clearly defined scope.",
+    "assumptions": [
+      "4-week timeline is achievable",
+      "Deloitte provides standard meeting space",
+      "No significant scope changes during delivery"
+    ],
+    "risk_factors": [
+      "timeline pressure",
+      "on-site delivery",
+      "first-time engagement"
+    ],
+    "confidence": 0.83,
+    "specialist_proposals": [
+      {
+        "agent_name": "Cost Agent",
+        "price_floor": 12250.0,
+        "price_target": 17500.0,
+        "price_stretch": 22750.0,
+        "reasoning": "The workshop requires a lead facilitator with AI expertise (3 days at $1,500/day = $4,500), a junior facilitator/assistant (3 days at $600/day = $1,800), pre-workshop assessment development and customization (8 hours at $150/hour = $1,200), post-workshop resource kit creation (6 hours at $150/hour = $900), on-site delivery including materials and setup ($500), communication and coordination (6 hours at $150/hour = $900), quality assurance and customization (4 hours at $150/hour = $600), and 25% overhead for management/admin ($1,775). Total base cost is $12,250. Adding 10-15% margin gives the floor price of $12,250. Target price includes 25-35% margin for sustainable business. Stretch price includes premium delivery and 40%+ margin for high-end service.",
+        "assumptions": [
+          "3-day total commitment per facilitator (1 day prep, 2 days delivery)",
+          "Pre-workshop assessment includes customization for Deloitte's context",
+          "Post-workshop kit includes templates, guides, and tool recommendations",
+          "On-site delivery includes all materials, handouts, and basic setup",
+          "Standard business hours for all activities",
+          "No travel costs as delivery is on-site at client office",
+          "Client provides standard meeting space and basic AV equipment"
+        ],
+        "confidence": 0.85
+      },
+      {
+        "agent_name": "Market Agent",
+        "price_floor": 12000.0,
+        "price_target": 18000.0,
+        "price_stretch": 25000.0,
+        "reasoning": "For corporate AI workshops targeting large enterprise clients like Deloitte, market rates typically range from $600-$1,250 per participant for a 2-day intensive program. With 20 participants, this creates a base range of $12,000-$25,000. Deloitte as a Big Four firm operates at the premium end of the market and expects high-quality, customized content delivered by experienced facilitators. The inclusion of pre-workshop assessment and post-workshop resources adds value beyond standard workshop offerings. Corporate training providers like General Assembly, Pragmatic Institute, and specialized AI consultancies charge $1,000-$2,000 per day for executive-level workshops with Fortune 500 clients. The 4-week delivery timeline is standard for corporate training, and on-site delivery at their office is the norm for large organizations.",
+        "assumptions": [
+          "Workshop includes customized content for Deloitte's specific needs",
+          "Facilitators have relevant corporate training experience",
+          "Materials and resources are professionally developed",
+          "Travel costs are included in the quoted price"
+        ],
+        "confidence": 0.85
+      },
+      {
+        "agent_name": "Value Agent",
+        "price_floor": 4500.0,
+        "price_target": 9000.0,
+        "price_stretch": 13500.0,
+        "reasoning": "For a Deloitte team of 20 professionals, the value created by this AI productivity workshop centers on time savings and efficiency gains. Assuming each participant saves 2 hours per week through better AI tool usage, with an average billable rate of $200/hour (conservative for Deloitte professionals), that's $400/week per person in recaptured time. For 20 people over 50 working weeks, that's $400,000 in annual value. At a 10-30% capture rate, the price range is $40,000-$120,000. However, considering this is a 2-day workshop with pre/post work, I've adjusted downward to reflect the shorter engagement timeframe. The floor assumes minimal adoption and basic productivity gains. The target assumes moderate adoption with measurable efficiency improvements. The stretch assumes strong adoption and significant workflow transformation.",
+        "assumptions": [
+          "2 hours/week time savings per participant",
+          "50 working weeks per year",
+          "Average billable rate of $200/hour for Deloitte professionals",
+          "Workshop leads to moderate AI tool adoption",
+          "Benefits realized within first 6 months"
+        ],
+        "confidence": 0.6
+      }
+    ],
+    "risk_assessment": {
+      "agent_name": "Risk Agent",
+      "risk_factors": [
+        "timeline pressure",
+        "on-site delivery",
+        "first-time engagement"
+      ],
+      "risk_adjustment_pct": 15.0,
+      "reasoning": "This is a well-defined 2-day workshop with clear deliverables (prompt engineering training, AI tools coverage, hands-on exercises, pre/post materials). The scope appears specific and manageable. However, there are moderate risks: the 4-week timeline is tight for a corporate workshop requiring coordination, travel, and materials preparation. On-site delivery at a large corporate client like Deloitte introduces potential for last-minute changes, room setup issues, or scheduling conflicts. As this appears to be a first-time engagement with this client, there's uncertainty around their internal processes, decision-making speed, and potential scope changes once on-site. The technical content (AI productivity tools) is relatively established, reducing technical risk. Overall, these factors warrant a 15% risk adjustment to account for the compressed timeline and first-time client dynamics.",
+      "confidence": 0.8
+    },
+    "packaging": {
+      "agent_name": "Packaging Agent",
+      "recommended_structure": "Fixed project fee",
+      "components": [
+        "2-day workshop delivery",
+        "Pre-workshop assessment",
+        "Post-workshop resource kit",
+        "Travel and on-site expenses"
+      ],
+      "reasoning": "This workshop has a clearly defined scope with specific deliverables (2-day agenda, assessment, resource kit) and a fixed timeline (4 weeks). Deloitte's corporate procurement process favors straightforward pricing with no surprises. The fixed fee provides budget certainty for the client and protects against scope creep while ensuring predictable revenue for the service provider.",
+      "alternatives": [
+        "Setup fee + retainer",
+        "Phased project fee"
+      ],
+      "confidence": 0.85
+    },
+    "validation": {
+      "is_valid": true,
+      "issues": [],
+      "suggestions": [],
+      "summary": "The pricing recommendation is commercially sound and well-justified. The floor price of $14,087 provides adequate margin above the cost base of $12,250 with a reasonable 15% risk adjustment. The target price of $20,812 appropriately reflects enterprise market rates for specialized AI training while incorporating the risk adjustment, and the stretch price of $26,187 offers a defensible premium option. The fixed project fee structure is appropriate for this corporate training engagement, and the confidence level of 0.83 accurately reflects the solid but not perfect information available. All assumptions are stated clearly, risk factors are identified, and the rationale coherently explains how the three pricing tiers were derived from cost, market, and value inputs."
+    }
+  }
+}

@@ -6,6 +6,7 @@
         <label for="business_url">Client Business URL</label>
         <input type="text" id="business_url" name="business_url"
             placeholder="https://example.com or example.com"
+            value="{{ prefill.get('business_url', '') }}"
             required>
         <span class="field-hint">We'll research the business automatically</span>
     </div>
@@ -14,30 +15,46 @@
         <label for="service_description">Your Service</label>
         <textarea id="service_description" name="service_description" rows="4"
             placeholder="Describe the service you are offering. Be specific about scope, deliverables, and duration."
-            required></textarea>
+            required>{{ prefill.get('service_description', '') }}</textarea>
     </div>
 
     <div class="form-group">
         <label for="constraints">Constraints (optional)</label>
         <textarea id="constraints" name="constraints" rows="2"
-            placeholder="Timeline, budget caps, technical constraints, delivery requirements."></textarea>
+            placeholder="Timeline, budget caps, technical constraints, delivery requirements.">{{ prefill.get('constraints', '') }}</textarea>
     </div>
 
-    <div class="form-row">
+    <div class="form-row form-row-3">
         <div class="form-group">
             <label for="budget_hint">Budget Hint (optional)</label>
             <input type="number" id="budget_hint" name="budget_hint" step="0.01" min="0"
-                placeholder="Client's budget signal">
+                placeholder="Client's budget signal"
+                value="{{ prefill.get('budget_hint', '') }}">
         </div>
 
         <div class="form-group">
             <label for="currency">Currency</label>
             <select id="currency" name="currency">
                 {% for c in currencies %}
-                <option value="{{ c }}">{{ c }}</option>
+                <option value="{{ c }}" {% if prefill.get('currency') == c %}selected{% endif %}>{{ c }}</option>
                 {% endfor %}
             </select>
         </div>
+        <div class="form-group">
+            <label for="model_tier">Model</label>
+            <select id="model_tier" name="model_tier">
+                {% for tier in model_tiers %}
+                <option value="{{ tier.id }}" {% if tier.id == current_model %}selected{% endif %}>{{ tier.label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="insights">Competitive Intelligence (optional)</label>
+        <textarea id="insights" name="insights" rows="4"
+            placeholder="What do you know about this client? Examples:&#10;- They currently use [vendor] and pay $X/month&#10;- Owner mentioned budget is around $Y&#10;- They said our competitor quoted $Z&#10;- Owner cares most about [speed/quality/price]&#10;- Their current solution lacks [feature you offer]">{{ prefill.get('insights', '') }}</textarea>
+        <span class="field-hint">Any intel that helps price smarter: current vendors, WTP signals, preferences, pain points</span>
     </div>
 
     <button type="submit" id="submit-btn">Get Pricing Recommendation</button>
@@ -50,6 +67,9 @@
             <li>Market Agent - checking market rates</li>
             <li>Value Agent - estimating client ROI</li>
             <li>Risk Agent - assessing delivery risk</li>
+            <li>Packaging Agent - recommending pricing structure</li>
+            <li>Negotiation Agent - building negotiation playbook</li>
+            <li>Discovery Agent - generating intel questions</li>
         </ul>
         <p class="loading-note">This typically takes 20-40 seconds.</p>
     </div>

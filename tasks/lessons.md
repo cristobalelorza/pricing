@@ -29,6 +29,16 @@
 - **Fix**: Delete __pycache__ directories before restarting when debugging
 - **Lesson**: When a fix doesn't take effect, clear __pycache__ first
 
+## Arbiter JSON Truncation
+- **Problem**: Free models truncate the Arbiter's JSON response mid-string, especially when rationale is a long field placed early in the JSON
+- **Fix**: Reorder JSON fields so numeric values come first (prices, confidence) and long text fields last (rationale). Also instruct the model to keep rationale under 200 words and not use commas in numbers.
+- **Lesson**: When LLM output is truncated, put the most important fields first in the schema. The truncation repair can recover partial JSON but only if the critical fields are already complete.
+
+## Linux Runtime
+- **Context**: User runs Linux natively (not Windows, not WSL)
+- **Lesson**: Provide run.sh alongside run.bat. Use python3, venv, and standard Linux paths.
+- **Detection**: Check which OS the user is on before assuming Windows-native execution
+
 ## Docs Must Stay Current
 - **Context**: User explicitly requires all project docs to be perfect and traceable
 - **Lesson**: After any code change, update all affected docs before marking work done

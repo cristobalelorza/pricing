@@ -1,0 +1,36 @@
+{
+  "eval_id": 2,
+  "configuration": "with_skill",
+  "expectations": [
+    {
+      "text": "Response identifies multiple underpricing signals from the scenario (no pushback, 'great deal' feedback, years without change)",
+      "passed": true,
+      "evidence": "Identifies 4 signals: (1) zero pushback, (2) clients volunteering 'great deal', (3) three years without change, (4) scope expanded without pricing. Cites Naomi Ionita: 'No hesitation means underpriced.'"
+    },
+    {
+      "text": "Response recommends a specific price increase range or new price point",
+      "passed": true,
+      "evidence": "Floor $7,000/mo, Target $8,500/mo, Stretch $10,000-$12,000/mo. Clear explanation of each level."
+    },
+    {
+      "text": "Response recommends HOW to implement the increase (grandfather, delayed, restructure, etc.)",
+      "passed": true,
+      "evidence": "Two implementation options: (A) Grandfather + Sunset with phased timeline, (B) Immediate Value-Tied Increase. Includes communication script for existing clients."
+    },
+    {
+      "text": "Response connects the AI content generation and analytics dashboards to justifying the increase",
+      "passed": true,
+      "evidence": "Cost lens identifies AI tool costs; market lens notes 'delivering Comprehensive to Premium-level service at Standard-level price'; value lens quantifies analytics dashboard value at $1-3K/month. Communication script explicitly anchors on these additions."
+    },
+    {
+      "text": "Response addresses the importance of not setting-and-forgetting pricing",
+      "passed": true,
+      "evidence": "Explicitly states: 'Three years without a price change... you have effectively given yourself a pay cut.' Final recommendation includes: 'If you are still closing over 70% of proposals, you are still underpriced and should raise again.'"
+    },
+    {
+      "text": "Response addresses how to mitigate risk of client churn from the increase",
+      "passed": true,
+      "evidence": "Dedicated risk table with severity ratings. Risk Factors section addresses churn (low-moderate, mitigated by grandfathering), sticker shock (moderate, mitigated by value framing), competitor poaching (low, high switching costs), internal resistance (moderate)."
+    }
+  ]
+}

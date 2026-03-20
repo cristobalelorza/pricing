@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="result">
+    <h2>Compare Pricing Results</h2>
+
+    <form action="/compare" method="get" class="compare-form">
+        <div class="form-row">
+            <div class="form-group">
+                <label for="a">Result A</label>
+                <select name="a" id="a">
+                    <option value="">Select...</option>
+                    {% for r in all_results %}
+                    <option value="{{ r.filename }}" {% if r.filename == selected_a %}selected{% endif %}>{{ r.label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="b">Result B</label>
+                <select name="b" id="b">
+                    <option value="">Select...</option>
+                    {% for r in all_results %}
+                    <option value="{{ r.filename }}" {% if r.filename == selected_b %}selected{% endif %}>{{ r.label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <button type="submit">Compare</button>
+    </form>
+
+    {% if result_a and result_b %}
+    <div class="compare-grid">
+        <div class="compare-col">
+            <h3>{{ deal_a.business_url }}</h3>
+            <p class="compare-service">{{ deal_a.service_description[:80] }}</p>
+            <div class="compare-prices">
+                <div><span class="compare-label">Floor</span> <span class="floor-color">{{ "{:,.0f}".format(result_a.price_floor) }}</span></div>
+                <div><span class="compare-label">Target</span> <span class="target-color">{{ "{:,.0f}".format(result_a.price_target) }}</span></div>
+                <div><span class="compare-label">Stretch</span> <span class="stretch-color">{{ "{:,.0f}".format(result_a.price_stretch) }}</span></div>
+            </div>
+            <p><strong>Structure:</strong> {{ result_a.suggested_structure }}</p>
+            <p><strong>Confidence:</strong> {{ "{:.0%}".format(result_a.confidence) }}</p>
+            <p><strong>Risk adj:</strong> +{{ "{:.0f}".format(result_a.risk_assessment.risk_adjustment_pct) }}%</p>
+            <p><strong>Valid:</strong> {% if result_a.validation %}{{ "Yes" if result_a.validation.is_valid else "No" }}{% else %}-{% endif %}</p>
+            {% if result_a.negotiation %}
+            <p><strong>Anchor:</strong> {{ "{:,.0f}".format(result_a.negotiation.anchor_price) }} {{ result_a.currency.value }}</p>
+            {% endif %}
+        </div>
+
+        <div class="compare-col">
+            <h3>{{ deal_b.business_url }}</h3>
+            <p class="compare-service">{{ deal_b.service_description[:80] }}</p>
+            <div class="compare-prices">
+                <div><span class="compare-label">Floor</span> <span class="floor-color">{{ "{:,.0f}".format(result_b.price_floor) }}</span></div>
+                <div><span class="compare-label">Target</span> <span class="target-color">{{ "{:,.0f}".format(result_b.price_target) }}</span></div>
+                <div><span class="compare-label">Stretch</span> <span class="stretch-color">{{ "{:,.0f}".format(result_b.price_stretch) }}</span></div>
+            </div>
+            <p><strong>Structure:</strong> {{ result_b.suggested_structure }}</p>
+            <p><strong>Confidence:</strong> {{ "{:.0%}".format(result_b.confidence) }}</p>
+            <p><strong>Risk adj:</strong> +{{ "{:.0f}".format(result_b.risk_assessment.risk_adjustment_pct) }}%</p>
+            <p><strong>Valid:</strong> {% if result_b.validation %}{{ "Yes" if result_b.validation.is_valid else "No" }}{% else %}-{% endif %}</p>
+            {% if result_b.negotiation %}
+            <p><strong>Anchor:</strong> {{ "{:,.0f}".format(result_b.negotiation.anchor_price) }} {{ result_b.currency.value }}</p>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+    <a href="/" class="back-btn">New Pricing</a>
+</div>
+{% endblock %}

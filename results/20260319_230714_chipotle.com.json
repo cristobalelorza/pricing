@@ -1,0 +1,117 @@
+{
+  "timestamp": "2026-03-19T23:07:14.776382+00:00",
+  "deal": {
+    "service_description": "Mobile app development for a restaurant chain",
+    "business_url": "chipotle.com",
+    "client_context": "Chipotle Mexican Grill is a major fast-casual restaurant chain specializing in Mexican-inspired cuisine, operating in the quick-service restaurant (QSR) industry. Based on its national presence and scale, Chipotle is a large enterprise with thousands of locations across the United States and internationally, employing tens of thousands of people and generating billions in annual revenue. The company's core offerings include customizable burritos, bowls, tacos, salads, and quesadillas, with a focus on fresh, high-quality ingredients and a \"Food with Integrity\" philosophy emphasizing responsibly sourced meats and produce. Chipotle operates primarily in North America, with a strong U.S. market presence and some international locations. Given its size and operations, Chipotle likely faces challenges related to supply chain management, food safety and quality control, labor management, digital ordering infrastructure, and maintaining consistent customer experience across thousands of locations. The company has invested heavily in digital platforms and loyalty programs to drive customer engagement and streamline operations. As a large, publicly traded company, Chipotle may also be concerned with regulatory compliance, sustainability initiatives, and managing public relations around food safety and corporate responsibility issues.",
+    "constraints": "MVP in 12 weeks",
+    "budget_hint": null,
+    "currency": "USD"
+  },
+  "result": {
+    "price_floor": 231250.0,
+    "price_target": 375000.0,
+    "price_stretch": 481250.0,
+    "currency": "USD",
+    "suggested_structure": "Phased project fee",
+    "rationale": "Cost agent provides the baseline at $231,250 (185k \u00d7 1.25 risk adjustment). Market agent suggests $375,000 is competitive for enterprise MVP. Value agent's $150k floor seems disconnected from actual development costs for a major chain. Given Chipotle's scale and the need for robust integration, I weight Cost and Market agents higher. Final pricing applies 25% risk adjustment to ensure project viability while remaining competitive for a large enterprise client.",
+    "assumptions": [
+      "3 developers (2 senior, 1 mid) working full-time for 12 weeks",
+      "MVP includes core ordering functionality",
+      "Integration with existing systems is required",
+      "App needs to support multiple restaurant locations",
+      "App drives 5% increase in digital sales",
+      "3-year amortization period for one-time development costs"
+    ],
+    "risk_factors": [
+      "timeline pressure",
+      "technical complexity",
+      "client dependencies",
+      "first-time engagement risk"
+    ],
+    "confidence": 0.75,
+    "specialist_proposals": [
+      {
+        "agent_name": "Cost Agent",
+        "price_floor": 185000.0,
+        "price_target": 285000.0,
+        "price_stretch": 385000.0,
+        "reasoning": "Based on Chipotle's scale as a major QSR chain requiring a mobile app MVP in 12 weeks, this estimate covers core features: restaurant locator, menu browsing with customization, online ordering with payment integration, loyalty/rewards system, and basic analytics dashboard. Labor includes 3 developers (2 senior, 1 mid), 1 UI/UX designer, 1 project manager, and 1 QA engineer working full-time for 12 weeks. Technology stack includes React Native for cross-platform development, cloud infrastructure, payment processing APIs, and third-party integrations. Overhead (25%) covers management, communication, and administrative costs. Timeline pressure adds 20% for the 12-week rush. Delivery risk buffer (15%) accounts for scope creep and unknowns. Profit margins range from slim (10%) for floor price to healthy (30%) for target price to premium (40%) for stretch price.",
+        "assumptions": [
+          "3 developers (2 senior, 1 mid) working full-time for 12 weeks",
+          "1 UI/UX designer, 1 project manager, 1 QA engineer",
+          "React Native for cross-platform development",
+          "Cloud infrastructure and payment processing APIs",
+          "MVP includes core features: restaurant locator, menu browsing, online ordering, loyalty system, analytics",
+          "No backend development - client provides existing systems or we use third-party services",
+          "Timeline pressure adds 20% to base costs",
+          "Delivery risk buffer of 15% for scope creep and unknowns"
+        ],
+        "confidence": 0.7
+      },
+      {
+        "agent_name": "Market Agent",
+        "price_floor": 150000.0,
+        "price_target": 300000.0,
+        "price_stretch": 500000.0,
+        "reasoning": "For a restaurant chain mobile app MVP, the market pricing reflects the complexity of integrating with existing POS systems, loyalty programs, and order management infrastructure. Budget providers (price_floor) typically offer basic ordering functionality with limited integrations. Mid-market pricing (price_target) includes robust features like real-time menu updates, location-based services, and basic loyalty integration. Premium pricing (price_stretch) covers enterprise-grade solutions with advanced analytics, full POS integration, multi-location management, and sophisticated loyalty/reward systems. Given Chipotle's scale and enterprise needs, the price_target range represents competitive market pricing for a quality MVP delivered in 12 weeks.",
+        "assumptions": [
+          "MVP includes core ordering functionality",
+          "Integration with existing systems is required",
+          "12-week timeline is fixed",
+          "App needs to support multiple restaurant locations"
+        ],
+        "confidence": 0.85
+      },
+      {
+        "agent_name": "Value Agent",
+        "price_floor": 50000.0,
+        "price_target": 150000.0,
+        "price_stretch": 250000.0,
+        "reasoning": "A mobile app for Chipotle would primarily drive digital ordering revenue, loyalty program engagement, and operational efficiency. Based on Chipotle's scale, a successful mobile app could generate approximately $50-100 million in additional annual revenue through increased order frequency, larger average tickets, and reduced labor costs. Capturing 10-30% of this value suggests a price range of $5-30 million annually. However, since this is a one-time MVP development project (not ongoing SaaS), we need to amortize over a 3-5 year useful life. This yields a one-time project price of $50k-$250k, with $150k representing fair value capture.",
+        "assumptions": [
+          "App drives 5% increase in digital sales",
+          "Reduces labor costs by 2% through improved order accuracy",
+          "Increases customer frequency by 10% through loyalty features",
+          "3-year amortization period for one-time development costs",
+          "Chipotle has 3,000+ locations with significant mobile ordering volume"
+        ],
+        "confidence": 0.7
+      }
+    ],
+    "risk_assessment": {
+      "agent_name": "Risk Agent",
+      "risk_factors": [
+        "timeline pressure",
+        "technical complexity",
+        "client dependencies",
+        "first-time engagement risk"
+      ],
+      "risk_adjustment_pct": 25.0,
+      "reasoning": "Mobile app development for a major restaurant chain like Chipotle carries significant risk. The 12-week MVP timeline is extremely aggressive for enterprise-level mobile development, especially for a company with thousands of locations that likely requires robust integration with existing systems. Technical complexity is high given the need for scalability, security, and potential integration with POS systems, inventory management, and loyalty programs. Client dependencies are substantial - large enterprise clients often have multiple stakeholders, complex approval processes, and can cause delays with feedback cycles or requirement changes. As this appears to be a first-time engagement with Chipotle, there's inherent uncertainty about their internal processes, technical standards, and decision-making speed. While the scope seems defined (restaurant mobile app), enterprise clients often have evolving requirements that can expand scope. The combination of aggressive timeline, technical complexity, and enterprise client dynamics warrants a 25% risk adjustment.",
+      "confidence": 0.75
+    },
+    "packaging": {
+      "agent_name": "Packaging Agent",
+      "recommended_structure": "Phased project fee",
+      "components": [
+        "Discovery and planning phase",
+        "MVP development phase",
+        "Testing and launch phase",
+        "Post-launch support"
+      ],
+      "reasoning": "Chipotle is a large enterprise with complex needs, and mobile app development for a restaurant chain requires clear milestones and deliverables. A phased project fee structure provides transparency, reduces client risk by breaking the project into manageable chunks, and ensures alignment at each stage before proceeding to the next. This structure is particularly suitable given the 12-week MVP timeline, as it allows for proper scoping, development, testing, and launch within the timeframe while maintaining quality and meeting Chipotle's high standards.",
+      "alternatives": [
+        "Monthly retainer",
+        "Fixed project fee"
+      ],
+      "confidence": 0.85
+    },
+    "validation": {
+      "is_valid": true,
+      "issues": [],
+      "suggestions": [],
+      "summary": "The pricing recommendation appears commercially sound and well-justified. The floor price of $231,250 adequately covers development costs with risk adjustment for a 12-week MVP project. The target price of $375,000 is defensible given Chipotle's enterprise scale and market positioning, while the stretch price of $481,250 provides reasonable upside potential. All key assumptions are clearly stated including team composition, timeline, scope, and expected business impact. The 0.75 confidence level appropriately reflects the inherent uncertainties in enterprise mobile development. The phased pricing structure aligns well with the MVP delivery model and large client context."
+    }
+  }
+}

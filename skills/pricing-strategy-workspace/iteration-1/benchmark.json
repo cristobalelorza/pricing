@@ -1,0 +1,138 @@
+{
+  "metadata": {
+    "skill_name": "pricing-strategy",
+    "skill_path": "/home/zack/Projects/pricing/skills/pricing-strategy",
+    "executor_model": "claude-opus-4-6",
+    "timestamp": "2026-03-19T22:03:31Z",
+    "evals_run": ["bakery-ordering-system", "agency-price-increase", "security-audit-soc2"],
+    "runs_per_configuration": 3
+  },
+  "runs": [
+    {
+      "eval_name": "bakery-ordering-system",
+      "configuration": "with_skill",
+      "pass_rate": 1.0,
+      "passed": 6,
+      "total": 6,
+      "time_seconds": 135.6,
+      "tokens": 28963,
+      "assertions": [
+        {"text": "Floor/target/stretch price range", "passed": true},
+        {"text": "Four pricing lenses", "passed": true},
+        {"text": "Budget hint analysis", "passed": true},
+        {"text": "Pricing structure", "passed": true},
+        {"text": "Explicit assumptions", "passed": true},
+        {"text": "Actionable numbers", "passed": true}
+      ]
+    },
+    {
+      "eval_name": "bakery-ordering-system",
+      "configuration": "without_skill",
+      "pass_rate": 0.67,
+      "passed": 4,
+      "total": 6,
+      "time_seconds": 103.5,
+      "tokens": 14971,
+      "assertions": [
+        {"text": "Floor/target/stretch price range", "passed": false},
+        {"text": "Four pricing lenses", "passed": true},
+        {"text": "Budget hint analysis", "passed": true},
+        {"text": "Pricing structure", "passed": true},
+        {"text": "Explicit assumptions", "passed": false},
+        {"text": "Actionable numbers", "passed": true}
+      ]
+    },
+    {
+      "eval_name": "agency-price-increase",
+      "configuration": "with_skill",
+      "pass_rate": 1.0,
+      "passed": 6,
+      "total": 6,
+      "time_seconds": 109.7,
+      "tokens": 30630,
+      "assertions": [
+        {"text": "Identifies underpricing signals", "passed": true},
+        {"text": "Specific increase range", "passed": true},
+        {"text": "Implementation strategy", "passed": true},
+        {"text": "Value-added connection", "passed": true},
+        {"text": "Iteration principle", "passed": true},
+        {"text": "Risk mitigation", "passed": true}
+      ]
+    },
+    {
+      "eval_name": "agency-price-increase",
+      "configuration": "without_skill",
+      "pass_rate": 0.83,
+      "passed": 5,
+      "total": 6,
+      "time_seconds": 51.0,
+      "tokens": 13290,
+      "assertions": [
+        {"text": "Identifies underpricing signals", "passed": true},
+        {"text": "Specific increase range", "passed": true},
+        {"text": "Implementation strategy", "passed": true},
+        {"text": "Value-added connection", "passed": true},
+        {"text": "Iteration principle", "passed": false},
+        {"text": "Risk mitigation", "passed": true}
+      ]
+    },
+    {
+      "eval_name": "security-audit-soc2",
+      "configuration": "with_skill",
+      "pass_rate": 1.0,
+      "passed": 6,
+      "total": 6,
+      "time_seconds": 153.2,
+      "tokens": 32607,
+      "assertions": [
+        {"text": "Floor/target/stretch price range", "passed": true},
+        {"text": "Four pricing lenses", "passed": true},
+        {"text": "Value quantification", "passed": true},
+        {"text": "Engagement structure", "passed": true},
+        {"text": "Risk assessment", "passed": true},
+        {"text": "Team/scope assumptions", "passed": true}
+      ]
+    },
+    {
+      "eval_name": "security-audit-soc2",
+      "configuration": "without_skill",
+      "pass_rate": 1.0,
+      "passed": 6,
+      "total": 6,
+      "time_seconds": 78.5,
+      "tokens": 14693,
+      "assertions": [
+        {"text": "Floor/target/stretch price range", "passed": true},
+        {"text": "Four pricing lenses", "passed": true},
+        {"text": "Value quantification", "passed": true},
+        {"text": "Engagement structure", "passed": true},
+        {"text": "Risk assessment", "passed": true},
+        {"text": "Team/scope assumptions", "passed": true}
+      ]
+    }
+  ],
+  "run_summary": {
+    "with_skill": {
+      "mean_pass_rate": 1.0,
+      "mean_time_seconds": 132.8,
+      "mean_tokens": 30733
+    },
+    "without_skill": {
+      "mean_pass_rate": 0.83,
+      "mean_time_seconds": 77.7,
+      "mean_tokens": 14318
+    },
+    "delta": {
+      "pass_rate": "+0.17",
+      "time_seconds": "+55.1",
+      "tokens": "+16415"
+    }
+  },
+  "notes": [
+    "With-skill achieves 100% pass rate across all 18 assertions vs 83% baseline (15/18).",
+    "Baseline fails on: explicit floor/target/stretch naming (eval 1), dedicated assumptions section (eval 1), and pricing iteration principle (eval 2).",
+    "Eval 3 (security audit) is non-discriminating: both with_skill and without_skill pass all 6 assertions. The qualitative differences (staffing model detail, expert citations, pre-pricing checklist) are not captured by the current assertions.",
+    "With-skill uses ~2.1x more tokens on average (30.7K vs 14.3K) and takes ~1.7x longer (133s vs 78s). This is expected given the skill adds 4 reference files to read.",
+    "Key qualitative advantages of with-skill not captured by assertions: explicit four-lens framework headers, expert practitioner citations, pre-pricing checklist, confidence level assessment, and communication scripts."
+  ]
+}

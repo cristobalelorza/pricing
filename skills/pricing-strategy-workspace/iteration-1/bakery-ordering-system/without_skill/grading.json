@@ -1,0 +1,36 @@
+{
+  "eval_id": 1,
+  "configuration": "without_skill",
+  "expectations": [
+    {
+      "text": "Response includes a floor, target, and stretch price (three-tier price range)",
+      "passed": false,
+      "evidence": "Has cost-based floor ($37K-$55K), recommended target ($55K-$65K), and stretch ($75K-$85K) in summary table, but does not use explicit floor/target/stretch naming convention throughout. Prices appear in a summary but the three-tier framework is not a structural organizing principle."
+    },
+    {
+      "text": "Response considers at least 3 of the 4 pricing lenses: cost, market, value, risk",
+      "passed": true,
+      "evidence": "All 4 covered: Cost-Based Analysis, Market-Based Analysis, Value-Based Analysis, and Risk and Complexity Adjustments sections."
+    },
+    {
+      "text": "Response analyzes the $25K budget hint and whether it is below, at, or above market",
+      "passed": true,
+      "evidence": "Explicitly states $25K is 'roughly half of what this project should cost at minimum' and provides detailed conversation handling advice."
+    },
+    {
+      "text": "Response recommends a specific pricing structure (project fee, phased, retainer, etc.)",
+      "passed": true,
+      "evidence": "Two options: Option A (tiered fixed price with 3 tiers) and Option B (phased approach). Also includes monthly maintenance retainer of $1.5-3K/month."
+    },
+    {
+      "text": "Response explicitly states assumptions (about scope, timeline, team, or complexity)",
+      "passed": false,
+      "evidence": "Assumptions are embedded within analysis sections but there is no dedicated assumptions section. Some are stated (e.g., hourly rate range, component breakdown) but key assumptions about timeline, client tech sophistication, and integration requirements are not called out explicitly."
+    },
+    {
+      "text": "Response provides specific dollar amounts, not just generic advice",
+      "passed": true,
+      "evidence": "Detailed dollar amounts throughout: cost floor $37K-$85K, market rates $40K-$150K, value-based $50-75K, tiered options $45-55K / $60-75K / $80K+, phased options with specific amounts per phase."
+    }
+  ]
+}

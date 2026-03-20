@@ -1,0 +1,36 @@
+{
+  "eval_id": 1,
+  "configuration": "with_skill",
+  "expectations": [
+    {
+      "text": "Response includes a floor, target, and stretch price (three-tier price range)",
+      "passed": true,
+      "evidence": "Clear summary table: Floor $38,000 / Target $48,000 / Stretch $62,000. Named explicitly throughout."
+    },
+    {
+      "text": "Response considers at least 3 of the 4 pricing lenses: cost, market, value, risk",
+      "passed": true,
+      "evidence": "All 4 lenses have dedicated sections with headers: 'Lens 1: Cost', 'Lens 2: Market', 'Lens 3: Value', 'Lens 4: Risk'. Each includes detailed analysis."
+    },
+    {
+      "text": "Response analyzes the $25K budget hint and whether it is below, at, or above market",
+      "passed": true,
+      "evidence": "Dedicated section 'How to Handle the $25K Budget Signal' with 3 options. Also states: 'The client's $25K budget signal is at or below your cost floor' and 'should not anchor your pricing.'"
+    },
+    {
+      "text": "Response recommends a specific pricing structure (project fee, phased, retainer, etc.)",
+      "passed": true,
+      "evidence": "Recommends phased structure: $8K discovery (also functions as paid pilot) + $35-48K build + $2-4K/month optional retainer. Explains why phased is better than lump-sum."
+    },
+    {
+      "text": "Response explicitly states assumptions (about scope, timeline, team, or complexity)",
+      "passed": true,
+      "evidence": "Dedicated 'Assumptions' section with 9 numbered items covering developer skill level, web vs native app, integration requirements, timeline, client responsiveness, hosting costs, post-launch support, hourly rate basis, and revenue estimates."
+    },
+    {
+      "text": "Response provides specific dollar amounts, not just generic advice",
+      "passed": true,
+      "evidence": "Specific amounts throughout: cost floor $28K-$52K, market range $20K-$80K, value capture $32K-$87K, final floor $38K, target $48K, stretch $62K, phase 1 $8K, phase 2 $35-48K, retainer $2-4K/month."
+    }
+  ]
+}

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+    @page { size: A4; margin: 2cm; }
+    body { font-family: Helvetica, Arial, sans-serif; color: #222; font-size: 11pt; line-height: 1.5; }
+    h1 { font-size: 20pt; color: #1a1a2e; margin-bottom: 0.3em; }
+    h2 { font-size: 14pt; color: #16213e; margin-top: 1.2em; border-bottom: 1px solid #ddd; padding-bottom: 0.3em; }
+    h3 { font-size: 11pt; color: #444; margin-top: 0.8em; }
+    .subtitle { color: #666; font-size: 10pt; margin-bottom: 1.5em; }
+    .price-table { width: 100%; border-collapse: collapse; margin: 1em 0; }
+    .price-table th, .price-table td { padding: 8px 12px; text-align: left; border: 1px solid #ddd; }
+    .price-table th { background: #f5f5f5; font-weight: 600; }
+    .target-row { background: #e8f0fe; font-weight: 600; }
+    ul, ol { margin: 0.5em 0; padding-left: 1.5em; }
+    li { margin-bottom: 0.3em; }
+    .section { margin-bottom: 1em; }
+    .confidence { color: #666; font-style: italic; }
+    .footer { margin-top: 2em; padding-top: 1em; border-top: 1px solid #ddd; color: #999; font-size: 9pt; text-align: center; }
+    .neg-table { width: 100%; border-collapse: collapse; margin: 0.5em 0; }
+    .neg-table td { padding: 6px 10px; border: 1px solid #ddd; }
+    .neg-table td:first-child { font-weight: 600; width: 40%; background: #f9f9f9; }
+</style>
+</head>
+<body>
+    <h1>Pricing Recommendation</h1>
+    <p class="subtitle">{{ deal.business_url }} | {{ deal.service_description[:100] }}</p>
+
+    <h2>Price Range</h2>
+    <table class="price-table">
+        <tr><th>Level</th><th>Amount</th><th>Description</th></tr>
+        <tr><td>Floor</td><td>{{ "{:,.0f}".format(result.price_floor) }} {{ result.currency.value }}</td><td>Minimum viable price</td></tr>
+        <tr class="target-row"><td>Target</td><td>{{ "{:,.0f}".format(result.price_target) }} {{ result.currency.value }}</td><td>Recommended price</td></tr>
+        <tr><td>Stretch</td><td>{{ "{:,.0f}".format(result.price_stretch) }} {{ result.currency.value }}</td><td>Premium positioning</td></tr>
+    </table>
+    <p><strong>Structure:</strong> {{ result.suggested_structure }}</p>
+    <p class="confidence">Confidence: {{ "{:.0%}".format(result.confidence) }}</p>
+
+    <h2>Rationale</h2>
+    <p>{{ result.rationale }}</p>
+
+    {% if result.packaging %}
+    <h2>Pricing Structure</h2>
+    <p><strong>{{ result.packaging.recommended_structure }}</strong></p>
+    {% if result.packaging.components %}
+    <ul>
+        {% for c in result.packaging.components %}
+        <li>{{ c }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    <p>{{ result.packaging.reasoning }}</p>
+    {% endif %}
+
+    {% if result.negotiation %}
+    <h2>Negotiation Strategy</h2>
+    <table class="neg-table">
+        <tr><td>Anchor (open at)</td><td>{{ "{:,.0f}".format(result.negotiation.anchor_price) }} {{ result.currency.value }}</td></tr>
+        <tr><td>Target (close at)</td><td>{{ "{:,.0f}".format(result.price_target) }} {{ result.currency.value }}</td></tr>
+        <tr><td>Walk Away (minimum)</td><td>{{ "{:,.0f}".format(result.negotiation.walk_away_price) }} {{ result.currency.value }}</td></tr>
+    </table>
+
+    {% if result.negotiation.tactics %}
+    <h3>Tactics</h3>
+    <ul>
+        {% for t in result.negotiation.tactics %}
+        <li>{{ t }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+    {% if result.negotiation.concession_strategy %}
+    <h3>Concession Ladder</h3>
+    <ol>
+        {% for c in result.negotiation.concession_strategy %}
+        <li>{{ c }}</li>
+        {% endfor %}
+    </ol>
+    {% endif %}
+
+    {% if result.negotiation.objection_responses %}
+    <h3>Objection Responses</h3>
+    <ul>
+        {% for o in result.negotiation.objection_responses %}
+        <li>{{ o }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    {% endif %}
+
+    <h2>Assumptions</h2>
+    <ul>
+        {% for a in result.assumptions %}
+        <li>{{ a }}</li>
+        {% endfor %}
+    </ul>
+
+    <h2>Risk Factors</h2>
+    <ul>
+        {% for r in result.risk_factors %}
+        <li>{{ r }}</li>
+        {% endfor %}
+    </ul>
+    <p>Risk adjustment applied: +{{ "{:.0f}".format(result.risk_assessment.risk_adjustment_pct) }}%</p>
+
+    {% if result.validation %}
+    <h2>Validation: {% if result.validation.is_valid %}Passed{% else %}Issues Found{% endif %}</h2>
+    <p>{{ result.validation.summary }}</p>
+    {% endif %}
+
+    {% if result.discovery %}
+    <h2>Discovery Questions</h2>
+    {% if result.discovery.standard_questions %}
+    <h3>Ask the Decision-Maker</h3>
+    <ol>
+        {% for q in result.discovery.standard_questions %}
+        <li>{{ q }}</li>
+        {% endfor %}
+    </ol>
+    {% endif %}
+    {% if result.discovery.business_specific_questions %}
+    <h3>Business-Specific</h3>
+    <ol>
+        {% for q in result.discovery.business_specific_questions %}
+        <li>{{ q }}</li>
+        {% endfor %}
+    </ol>
+    {% endif %}
+    {% if result.discovery.what_to_listen_for %}
+    <h3>Signals to Listen For</h3>
+    <ul>
+        {% for s in result.discovery.what_to_listen_for %}
+        <li>{{ s }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    {% endif %}
+
+    <div class="footer">
+        Generated by Precio | {{ timestamp }} | Confidential
+    </div>
+</body>
+</html>

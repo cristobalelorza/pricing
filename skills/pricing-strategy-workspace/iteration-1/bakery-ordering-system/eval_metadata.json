@@ -1,0 +1,37 @@
+{
+  "eval_id": 1,
+  "eval_name": "bakery-ordering-system",
+  "prompt": "I'm a freelance developer and a local bakery chain (5 locations, ~$3M annual revenue) wants me to build them a custom online ordering system with delivery tracking. They mentioned a budget of around $25K but I think I could charge more. How should I price this?",
+  "assertions": [
+    {
+      "id": "floor-target-stretch",
+      "text": "Response includes a floor, target, and stretch price (three-tier price range)",
+      "type": "content_check"
+    },
+    {
+      "id": "four-lenses",
+      "text": "Response considers at least 3 of the 4 pricing lenses: cost, market, value, risk",
+      "type": "content_check"
+    },
+    {
+      "id": "budget-hint-analysis",
+      "text": "Response analyzes the $25K budget hint and whether it is below, at, or above market",
+      "type": "content_check"
+    },
+    {
+      "id": "pricing-structure",
+      "text": "Response recommends a specific pricing structure (project fee, phased, retainer, etc.)",
+      "type": "content_check"
+    },
+    {
+      "id": "explicit-assumptions",
+      "text": "Response explicitly states assumptions (about scope, timeline, team, or complexity)",
+      "type": "content_check"
+    },
+    {
+      "id": "actionable-numbers",
+      "text": "Response provides specific dollar amounts, not just generic advice",
+      "type": "content_check"
+    }
+  ]
+}

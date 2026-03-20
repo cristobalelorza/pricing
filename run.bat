@@ -3,7 +3,7 @@ cd /d "%~dp0"
 
 if not exist .env (
     echo ERROR: .env file not found.
-    echo Copy .env.example to .env and add your ANTHROPIC_API_KEY.
+    echo Create a .env file with your OPENROUTER_API_KEY.
     pause
     exit /b 1
 )

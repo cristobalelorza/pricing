@@ -72,6 +72,10 @@ textarea:focus, input:focus, select:focus {
     gap: 1rem;
 }
 
+.form-row-3 {
+    grid-template-columns: 1fr 1fr 1fr;
+}
+
 button[type="submit"] {
     width: 100%;
     padding: 0.85rem;
@@ -357,6 +361,304 @@ section li {
 .back-btn:hover {
     background: #333;
 }
+
+.result-actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+}
+
+.export-btn {
+    background: #1e3a5f;
+    color: #4a9eff;
+}
+
+.export-btn:hover {
+    background: #264a73;
+}
+
+/* History table */
+.history-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+    font-size: 0.85rem;
+}
+
+.history-table th,
+.history-table td {
+    padding: 0.6rem 0.5rem;
+    text-align: left;
+    border-bottom: 1px solid #1a1a1a;
+}
+
+.history-table th {
+    color: #888;
+    font-weight: 600;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.history-table td {
+    color: #ccc;
+}
+
+.history-table tr:hover td {
+    background: #141414;
+}
+
+/* Progress page */
+.progress-service {
+    color: #888;
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+}
+
+.agent-progress {
+    margin: 1.5rem 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.agent-step {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.6rem 0.8rem;
+    background: #111;
+    border: 1px solid #1a1a1a;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.agent-step .agent-icon {
+    font-size: 1rem;
+    color: #333;
+    width: 1.2rem;
+    text-align: center;
+}
+
+.agent-step .agent-label {
+    flex: 1;
+    color: #555;
+    font-size: 0.9rem;
+}
+
+.agent-step .agent-status {
+    font-size: 0.8rem;
+    color: #444;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.agent-step.active {
+    border-color: #4a9eff;
+    background: #0d1b2a;
+}
+
+.agent-step.active .agent-icon {
+    color: #4a9eff;
+    animation: pulse 1.2s ease-in-out infinite;
+}
+
+.agent-step.active .agent-label {
+    color: #ccc;
+}
+
+.agent-step.active .agent-status {
+    color: #4a9eff;
+}
+
+.agent-step.done {
+    border-color: #1a2a1a;
+}
+
+.agent-step.done .agent-icon {
+    color: #10b981;
+}
+
+.agent-step.done .agent-label {
+    color: #888;
+}
+
+.agent-step.done .agent-status {
+    color: #10b981;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+}
+
+/* Negotiation */
+.negotiation {
+    border-color: #7c3aed;
+}
+
+.negotiation h3 {
+    color: #a78bfa;
+}
+
+.negotiation-prices {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.neg-price {
+    background: #0d0d0d;
+    border: 1px solid #1a1a1a;
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+}
+
+.neg-label {
+    display: block;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    color: #666;
+    margin-bottom: 0.3rem;
+}
+
+.neg-amount {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #a78bfa;
+}
+
+.neg-amount.target-color {
+    color: #4a9eff;
+}
+
+.neg-amount.floor-color {
+    color: #f59e0b;
+}
+
+.objections li {
+    margin-bottom: 0.5rem;
+    line-height: 1.5;
+}
+
+/* Discovery */
+.discovery-section {
+    margin-bottom: 1.5rem;
+}
+
+.discovery-section summary {
+    cursor: pointer;
+    padding: 0.75rem;
+    background: #111;
+    border: 1px solid #1a3a3a;
+    border-radius: 8px;
+    color: #5eead4;
+    font-weight: 600;
+}
+
+.question-group {
+    padding: 0.75rem 1rem;
+    margin-top: 0.5rem;
+    background: #0d0d0d;
+    border: 1px solid #1a1a1a;
+    border-radius: 6px;
+}
+
+.question-group h4 {
+    color: #5eead4;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.question-group ol,
+.question-group ul {
+    padding-left: 1.25rem;
+}
+
+.question-group li {
+    margin-bottom: 0.4rem;
+    color: #bbb;
+    line-height: 1.5;
+}
+
+/* Packaging */
+.packaging {
+    border-color: #2563eb;
+}
+
+.packaging h3 {
+    color: #60a5fa;
+}
+
+.alternatives {
+    font-size: 0.85rem;
+    color: #777;
+    margin-top: 0.5rem;
+}
+
+/* Nav */
+.nav-link {
+    color: #666;
+    text-decoration: none;
+    font-size: 0.85rem;
+}
+
+.nav-link:hover {
+    color: #4a9eff;
+}
+
+/* Compare */
+.compare-form {
+    margin-bottom: 1.5rem;
+}
+
+.compare-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin: 1rem 0;
+}
+
+.compare-col {
+    background: #111;
+    border: 1px solid #1a1a1a;
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+.compare-col h3 {
+    color: #fff;
+    margin-bottom: 0.3rem;
+}
+
+.compare-service {
+    color: #666;
+    font-size: 0.85rem;
+    margin-bottom: 0.75rem;
+}
+
+.compare-prices {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    margin-bottom: 0.75rem;
+}
+
+.compare-prices div {
+    display: flex;
+    justify-content: space-between;
+}
+
+.compare-label {
+    color: #888;
+    font-size: 0.85rem;
+}
+
+.floor-color { color: #f59e0b; font-weight: 600; }
+.target-color { color: #4a9eff; font-weight: 600; }
+.stretch-color { color: #10b981; font-weight: 600; }
 
 /* Footer */
 footer {

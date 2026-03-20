@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="result">
+    <section class="final-price">
+        <h2>Analyzing Pricing</h2>
+        <p class="progress-service">{{ deal.service_description[:100] }}</p>
+    </section>
+
+    <div class="agent-progress">
+        <div class="agent-step" id="step-researching">
+            <span class="agent-icon">&#9711;</span>
+            <span class="agent-label">Research Agent</span>
+            <span class="agent-status">waiting</span>
+        </div>
+        <div class="agent-step" id="step-cost">
+            <span class="agent-icon">&#9711;</span>
+            <span class="agent-label">Cost Agent</span>
+            <span class="agent-status">waiting</span>
+        </div>
+        <div class="agent-step" id="step-market">
+            <span class="agent-icon">&#9711;</span>
+            <span class="agent-label">Market Agent</span>
+            <span class="agent-status">waiting</span>
+        </div>
+        <div class="agent-step" id="step-value">
+            <span class="agent-icon">&#9711;</span>
+            <span class="agent-label">Value Agent</span>
+            <span class="agent-status">waiting</span>
+        </div>
+        <div class="agent-step" id="step-risk">
+            <span class="agent-icon">&#9711;</span>
+            <span class="agent-label">Risk Agent</span>
+            <span class="agent-status">waiting</span>
+        </div>
+        <div class="agent-step" id="step-packaging">
+            <span class="agent-icon">&#9711;</span>
+            <span class="agent-label">Packaging Agent</span>
+            <span class="agent-status">waiting</span>
+        </div>
+        <div class="agent-step" id="step-negotiation">
+            <span class="agent-icon">&#9711;</span>
+            <span class="agent-label">Negotiation Agent</span>
+            <span class="agent-status">waiting</span>
+        </div>
+        <div class="agent-step" id="step-discovery">
+            <span class="agent-icon">&#9711;</span>
+            <span class="agent-label">Discovery Agent</span>
+            <span class="agent-status">waiting</span>
+        </div>
+        <div class="agent-step" id="step-arbiter">
+            <span class="agent-icon">&#9711;</span>
+            <span class="agent-label">Arbiter Agent</span>
+            <span class="agent-status">waiting</span>
+        </div>
+        <div class="agent-step" id="step-validator">
+            <span class="agent-icon">&#9711;</span>
+            <span class="agent-label">Validator Agent</span>
+            <span class="agent-status">waiting</span>
+        </div>
+    </div>
+
+    <div id="result-preview" class="hidden">
+        <section class="final-price">
+            <div class="price-range">
+                <div class="price-card floor">
+                    <span class="label">Floor</span>
+                    <span class="amount" id="res-floor">-</span>
+                    <span class="currency" id="res-currency">USD</span>
+                </div>
+                <div class="price-card target">
+                    <span class="label">Target</span>
+                    <span class="amount" id="res-target">-</span>
+                    <span class="currency">USD</span>
+                </div>
+                <div class="price-card stretch">
+                    <span class="label">Stretch</span>
+                    <span class="amount" id="res-stretch">-</span>
+                    <span class="currency">USD</span>
+                </div>
+            </div>
+        </section>
+        <p id="res-loading">Loading full results...</p>
+    </div>
+
+    <div id="error-box" class="hidden">
+        <section class="validation invalid">
+            <h3>Pricing Failed</h3>
+            <p id="error-msg"></p>
+        </section>
+        <a href="/" class="back-btn">Try Again</a>
+    </div>
+</div>
+
+<script>
+(function() {
+    var jobId = "{{ job_id }}";
+    var source = new EventSource("/progress/" + jobId);
+
+    var agentMap = {
+        "researching": "step-researching",
+        "specialists": null,
+        "done:Cost Agent": "step-cost",
+        "done:Market Agent": "step-market",
+        "done:Value Agent": "step-value",
+        "done:Risk Agent": "step-risk",
+        "done:Packaging Agent": "step-packaging",
+        "done:Negotiation Agent": "step-negotiation",
+        "done:Discovery Agent": "step-discovery",
+        "arbiter": "step-arbiter",
+        "validator": "step-validator",
+    };
+
+    function setActive(stepId) {
+        var el = document.getElementById(stepId);
+        if (el) {
+            el.querySelector(".agent-icon").textContent = "\u25CF";
+            el.querySelector(".agent-status").textContent = "running";
+            el.classList.add("active");
+        }
+    }
+
+    function setDone(stepId) {
+        var el = document.getElementById(stepId);
+        if (el) {
+            el.querySelector(".agent-icon").textContent = "\u2713";
+            el.querySelector(".agent-status").textContent = "done";
+            el.classList.remove("active");
+            el.classList.add("done");
+        }
+    }
+
+    source.addEventListener("status", function(e) {
+        var status = e.data;
+
+        if (status === "researching") {
+            setActive("step-researching");
+        } else if (status === "specialists") {
+            setDone("step-researching");
+            setActive("step-cost");
+            setActive("step-market");
+            setActive("step-value");
+            setActive("step-risk");
+            setActive("step-packaging");
+            setActive("step-negotiation");
+            setActive("step-discovery");
+        } else if (status.startsWith("done:")) {
+            var stepId = agentMap[status];
+            if (stepId) setDone(stepId);
+        } else if (status === "arbiter") {
+            setActive("step-arbiter");
+        } else if (status === "validator") {
+            setDone("step-arbiter");
+            setActive("step-validator");
+        } else if (status === "done") {
+            setDone("step-validator");
+        }
+    });
+
+    source.addEventListener("result", function(e) {
+        var data = JSON.parse(e.data);
+        source.close();
+
+        var fmt = function(n) { return n.toLocaleString("en-US", {maximumFractionDigits: 0}); };
+        document.getElementById("res-floor").textContent = fmt(data.floor);
+        document.getElementById("res-target").textContent = fmt(data.target);
+        document.getElementById("res-stretch").textContent = fmt(data.stretch);
+        document.querySelectorAll(".currency").forEach(function(el) { el.textContent = data.currency; });
+        document.getElementById("result-preview").classList.remove("hidden");
+
+        // Redirect to full result page after brief pause
+        setTimeout(function() {
+            window.location.href = "/result/" + jobId;
+        }, 2000);
+    });
+
+    source.addEventListener("error", function(e) {
+        source.close();
+        document.getElementById("error-msg").textContent = e.data || "An unexpected error occurred.";
+        document.getElementById("error-box").classList.remove("hidden");
+    });
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,36 @@
+{
+  "eval_id": 3,
+  "configuration": "with_skill",
+  "expectations": [
+    {
+      "text": "Response includes a floor, target, and stretch price (three-tier price range)",
+      "passed": true,
+      "evidence": "Clear table: Floor $210,000 / Target $265,000 / Stretch $325,000. Named explicitly with rationale for each level."
+    },
+    {
+      "text": "Response considers at least 3 of the 4 pricing lenses: cost, market, value, risk",
+      "passed": true,
+      "evidence": "All 4 lenses with dedicated sections. Cost includes detailed staffing model (1,330 hours, 5 roles). Market with segment breakdown. Value with 4 value drivers quantified. Risk with 7-item table."
+    },
+    {
+      "text": "Response attempts to quantify the value (SOC 2 enables enterprise sales, reduces breach risk, etc.)",
+      "passed": true,
+      "evidence": "Value table: Enterprise deal enablement $200K-$1.5M, breach risk reduction $50K-$400K, avoided in-house build $150K-$250K. Total estimated value $400K-$2M+. Prices at 10-15% of value."
+    },
+    {
+      "text": "Response recommends an engagement structure (phased, project fee, etc.)",
+      "passed": true,
+      "evidence": "Three-phase structure: Discovery $75K (Month 1) + Remediation $105K (Month 2) + Preparation $85K (Month 3). Payment terms specified. Also recommends add-ons sold separately."
+    },
+    {
+      "text": "Response identifies specific delivery risks (scope ambiguity, existing security posture, regulatory complexity)",
+      "passed": true,
+      "evidence": "7-item risk table with severity: scope ambiguity (Moderate-High), client security maturity (Moderate-High), client dependencies (Moderate), fintech regulatory complexity (Moderate), timeline pressure (Moderate), post-engagement support (Low-Moderate), first-time engagement risk (Low-Moderate)."
+    },
+    {
+      "text": "Response states assumptions about team composition, scope boundaries, or effort estimates",
+      "passed": true,
+      "evidence": "8 numbered assumptions covering scope definition, SOC 2 TSC coverage, client maturity, team size, deliverables, tech stack, client cooperation, and firm cost structure. Plus detailed staffing model with hours per role."
+    }
+  ]
+}

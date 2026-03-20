@@ -1,0 +1,37 @@
+{
+  "eval_id": 2,
+  "eval_name": "agency-price-increase",
+  "prompt": "We're a marketing agency that's been charging $5K/month retainer for social media management for the past 3 years. Our clients never push back on price and several have said we're a great deal. We've added AI content generation and analytics dashboards since we set the price. Should we raise our rates and how?",
+  "assertions": [
+    {
+      "id": "identifies-underpricing-signals",
+      "text": "Response identifies multiple underpricing signals from the scenario (no pushback, 'great deal' feedback, years without change)",
+      "type": "content_check"
+    },
+    {
+      "id": "specific-increase-range",
+      "text": "Response recommends a specific price increase range or new price point (not just 'raise your prices')",
+      "type": "content_check"
+    },
+    {
+      "id": "implementation-strategy",
+      "text": "Response recommends HOW to implement the increase (grandfather, delayed, restructure, etc.)",
+      "type": "content_check"
+    },
+    {
+      "id": "value-added-connection",
+      "text": "Response connects the AI content generation and analytics dashboards to justifying the increase",
+      "type": "content_check"
+    },
+    {
+      "id": "iteration-principle",
+      "text": "Response addresses the importance of not setting-and-forgetting pricing (revisiting regularly)",
+      "type": "content_check"
+    },
+    {
+      "id": "risk-mitigation",
+      "text": "Response addresses how to mitigate risk of client churn from the increase",
+      "type": "content_check"
+    }
+  ]
+}

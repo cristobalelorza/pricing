@@ -1,0 +1,36 @@
+{
+  "eval_id": 3,
+  "configuration": "without_skill",
+  "expectations": [
+    {
+      "text": "Response includes a floor, target, and stretch price (three-tier price range)",
+      "passed": true,
+      "evidence": "Floor $150,000, Target $220-260K (recommended $240K), Stretch $325,000. Summary table included."
+    },
+    {
+      "text": "Response considers at least 3 of the 4 pricing lenses: cost, market, value, risk",
+      "passed": true,
+      "evidence": "All 4 covered: Cost-Based Analysis, Market-Based Analysis, Value-Based Analysis, Risk and Complexity Adjustments."
+    },
+    {
+      "text": "Response attempts to quantify the value (SOC 2 enables enterprise sales, reduces breach risk, etc.)",
+      "passed": true,
+      "evidence": "SOC 2 as revenue gate for enterprise, pipeline delays $500K-$2M+, cost of poor work $50K-$150K. ROI of 5-10x on $240K engagement."
+    },
+    {
+      "text": "Response recommends an engagement structure (phased, project fee, etc.)",
+      "passed": true,
+      "evidence": "Three options: (A) Fixed fee with milestones, (B) Base fee + T&M, (C) Premium/accelerated. Option A recommended with Phase 1/Phase 2 breakdown."
+    },
+    {
+      "text": "Response identifies specific delivery risks (scope ambiguity, existing security posture, regulatory complexity)",
+      "passed": true,
+      "evidence": "Identifies: fintech regulatory complexity, first-time scoping risk, timeline pressure, organizational complexity, client maturity uncertainty."
+    },
+    {
+      "text": "Response states assumptions about team composition, scope boundaries, or effort estimates",
+      "passed": true,
+      "evidence": "6 assumptions listed: basic security infrastructure exists, SOC 2 Type I focus, pen testing included, in-house expertise, audit not included, advisory vs hands-on. Team staffing model with roles and dedication percentages."
+    }
+  ]
+}

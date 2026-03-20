@@ -1,0 +1,37 @@
+{
+  "eval_id": 3,
+  "eval_name": "security-audit-soc2",
+  "prompt": "I run a cybersecurity consulting firm. A Series B fintech startup (raised $30M, 80 employees) wants us to do a full security audit + SOC 2 compliance preparation. This is a 3-month engagement. We've never priced something exactly like this before. What should we charge?",
+  "assertions": [
+    {
+      "id": "floor-target-stretch",
+      "text": "Response includes a floor, target, and stretch price (three-tier price range)",
+      "type": "content_check"
+    },
+    {
+      "id": "four-lenses",
+      "text": "Response considers at least 3 of the 4 pricing lenses: cost, market, value, risk",
+      "type": "content_check"
+    },
+    {
+      "id": "value-quantification",
+      "text": "Response attempts to quantify the value (SOC 2 enables enterprise sales, reduces breach risk, etc.)",
+      "type": "content_check"
+    },
+    {
+      "id": "engagement-structure",
+      "text": "Response recommends an engagement structure (phased, project fee, etc.)",
+      "type": "content_check"
+    },
+    {
+      "id": "risk-assessment",
+      "text": "Response identifies specific delivery risks (scope ambiguity, existing security posture, regulatory complexity)",
+      "type": "content_check"
+    },
+    {
+      "id": "team-scope-assumptions",
+      "text": "Response states assumptions about team composition, scope boundaries, or effort estimates",
+      "type": "content_check"
+    }
+  ]
+}

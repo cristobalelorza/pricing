@@ -49,6 +49,121 @@
         </ul>
     </section>
 
+    {% if result.packaging %}
+    <section class="packaging">
+        <h3>Pricing Structure</h3>
+        <p><strong>{{ result.packaging.recommended_structure }}</strong></p>
+        {% if result.packaging.components %}
+        <ul>
+            {% for c in result.packaging.components %}
+            <li>{{ c }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        <p>{{ result.packaging.reasoning }}</p>
+        {% if result.packaging.alternatives %}
+        <p class="alternatives"><strong>Alternatives considered:</strong> {{ result.packaging.alternatives | join("; ") }}</p>
+        {% endif %}
+    </section>
+    {% endif %}
+
+    {% if result.negotiation %}
+    <section class="negotiation">
+        <h3>Negotiation Playbook</h3>
+        <div class="negotiation-prices">
+            <div class="neg-price">
+                <span class="neg-label">Anchor (open at)</span>
+                <span class="neg-amount">{{ "{:,.0f}".format(result.negotiation.anchor_price) }} {{ result.currency.value }}</span>
+            </div>
+            <div class="neg-price">
+                <span class="neg-label">Target (close at)</span>
+                <span class="neg-amount target-color">{{ "{:,.0f}".format(result.price_target) }} {{ result.currency.value }}</span>
+            </div>
+            <div class="neg-price">
+                <span class="neg-label">Walk away (minimum)</span>
+                <span class="neg-amount floor-color">{{ "{:,.0f}".format(result.negotiation.walk_away_price) }} {{ result.currency.value }}</span>
+            </div>
+        </div>
+
+        {% if result.negotiation.tactics %}
+        <h4>Tactics</h4>
+        <ul>
+            {% for t in result.negotiation.tactics %}
+            <li>{{ t }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+
+        {% if result.negotiation.concession_strategy %}
+        <h4>Concession Ladder</h4>
+        <ol>
+            {% for c in result.negotiation.concession_strategy %}
+            <li>{{ c }}</li>
+            {% endfor %}
+        </ol>
+        {% endif %}
+
+        {% if result.negotiation.objection_responses %}
+        <h4>Objection Responses</h4>
+        <ul class="objections">
+            {% for o in result.negotiation.objection_responses %}
+            <li>{{ o }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+    </section>
+    {% endif %}
+
+    {% if result.discovery %}
+    <details class="discovery-section">
+        <summary>Discovery Questions</summary>
+
+        {% if result.discovery.standard_questions %}
+        <div class="question-group">
+            <h4>Ask the Decision-Maker</h4>
+            <ol>
+                {% for q in result.discovery.standard_questions %}
+                <li>{{ q }}</li>
+                {% endfor %}
+            </ol>
+        </div>
+        {% endif %}
+
+        {% if result.discovery.business_specific_questions %}
+        <div class="question-group">
+            <h4>Business-Specific Questions</h4>
+            <ol>
+                {% for q in result.discovery.business_specific_questions %}
+                <li>{{ q }}</li>
+                {% endfor %}
+            </ol>
+        </div>
+        {% endif %}
+
+        {% if result.discovery.indirect_questions %}
+        <div class="question-group">
+            <h4>Indirect Questions (ask employees, partners)</h4>
+            <ol>
+                {% for q in result.discovery.indirect_questions %}
+                <li>{{ q }}</li>
+                {% endfor %}
+            </ol>
+        </div>
+        {% endif %}
+
+        {% if result.discovery.what_to_listen_for %}
+        <div class="question-group">
+            <h4>Signals to Listen For</h4>
+            <ul>
+                {% for s in result.discovery.what_to_listen_for %}
+                <li>{{ s }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+    </details>
+    {% endif %}
+
     <section class="risk">
         <h3>Risk Factors</h3>
         <ul>
@@ -107,8 +222,26 @@
             <p><strong>Adjustment:</strong> +{{ "{:.0f}".format(result.risk_assessment.risk_adjustment_pct) }}%
                | <strong>Confidence:</strong> {{ "{:.0%}".format(result.risk_assessment.confidence) }}</p>
         </div>
+
+        {% if result.packaging %}
+        <div class="specialist-card">
+            <h4>{{ result.packaging.agent_name }}</h4>
+            <p><strong>Recommended:</strong> {{ result.packaging.recommended_structure }}</p>
+            <p>{{ result.packaging.reasoning }}</p>
+            {% if result.packaging.alternatives %}
+            <p class="assumptions-inline"><strong>Alternatives:</strong> {{ result.packaging.alternatives | join(", ") }}</p>
+            {% endif %}
+            <p class="assumptions-inline"><strong>Confidence:</strong> {{ "{:.0%}".format(result.packaging.confidence) }}</p>
+        </div>
+        {% endif %}
     </details>
 
-    <a href="/" class="back-btn">Price Another Deal</a>
+    <div class="result-actions">
+        <a href="/" class="back-btn">Price Another Deal</a>
+        {% if result_filename %}
+        <a href="/export/{{ result_filename }}" class="back-btn export-btn">Export PDF</a>
+        {% endif %}
+        <a href="/rerun?url={{ deal.business_url|urlencode }}&service={{ deal.service_description|urlencode }}&constraints={{ deal.constraints|urlencode }}&budget={{ deal.budget_hint or '' }}&currency={{ deal.currency.value }}&insights={{ deal.insights|urlencode }}" class="back-btn">Re-run with Changes</a>
+    </div>
 </div>
 {% endblock %}

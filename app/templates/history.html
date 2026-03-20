@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="result">
+    <h2>Pricing History</h2>
+
+    {% if results %}
+    <table class="history-table">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Client</th>
+                <th>Service</th>
+                <th>Floor</th>
+                <th>Target</th>
+                <th>Stretch</th>
+                <th>Valid</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for r in results %}
+            <tr onclick="window.location='/history/{{ r.filename }}'" style="cursor:pointer">
+                <td>{{ r.timestamp[:10] }}</td>
+                <td>{{ r.url }}</td>
+                <td>{{ r.service }}</td>
+                <td>{{ "{:,.0f}".format(r.floor) }} {{ r.currency }}</td>
+                <td>{{ "{:,.0f}".format(r.target) }} {{ r.currency }}</td>
+                <td>{{ "{:,.0f}".format(r.stretch) }} {{ r.currency }}</td>
+                <td>{% if r.valid is none %}-{% elif r.valid %}Yes{% else %}No{% endif %}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No pricing results saved yet. Run a pricing analysis first.</p>
+    {% endif %}
+
+    <a href="/" class="back-btn">New Pricing</a>
+</div>
+{% endblock %}

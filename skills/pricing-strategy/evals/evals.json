@@ -1,0 +1,23 @@
+{
+  "skill_name": "pricing-strategy",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I'm a freelance developer and a local bakery chain (5 locations, ~$3M annual revenue) wants me to build them a custom online ordering system with delivery tracking. They mentioned a budget of around $25K but I think I could charge more. How should I price this?",
+      "expected_output": "Floor/target/stretch pricing with rationale using all four lenses (cost, market, value, risk). Should identify that $25K is likely below market for this scope. Should recommend a structure (project fee or phased) and surface assumptions about scope, timeline, and technical complexity.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "We're a marketing agency that's been charging $5K/month retainer for social media management for the past 3 years. Our clients never push back on price and several have said we're a great deal. We've added AI content generation and analytics dashboards since we set the price. Should we raise our rates and how?",
+      "expected_output": "Should identify multiple underpricing signals (no pushback, 'great deal' feedback, significant value added without price change, 3 years without revision). Should recommend a specific increase range with implementation strategy (grandfather vs delayed vs restructure). Should reference the never-set-and-forget principle and suggest WTP research.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "I run a cybersecurity consulting firm. A Series B fintech startup (raised $30M, 80 employees) wants us to do a full security audit + SOC 2 compliance preparation. This is a 3-month engagement. We've never priced something exactly like this before. What should we charge?",
+      "expected_output": "Should use all four lenses: cost (senior security consultants, tools, reporting), market (industry rates for security audits and compliance work), value (SOC 2 enables enterprise sales, reduces breach risk -- quantifiable), risk (scope ambiguity around existing security posture, regulatory complexity). Should recommend floor/target/stretch in a range likely between $80K-$250K. Should suggest a structure (phased: audit then remediation, or fixed project fee). Should surface assumptions about team composition and scope boundaries.",
+      "files": []
+    }
+  ]
+}

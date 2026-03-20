@@ -1,13 +1,13 @@
 # Precio - Handoff
 
 ## Current Objective
-Tune prompt quality and add result persistence.
+Model upgrade and advanced features.
 
 ## Exact Next Step
-1. Run more diverse test cases (training, design, audit) to stress-test prompts
-2. Review specialist agent reasoning quality -- are they giving useful, differentiated perspectives?
-3. Add result persistence so pricing history is reviewable
-4. Consider adding Packaging Agent
+1. Switch to a better LLM model for higher quality outputs
+2. Add comparison view (compare two pricing runs side by side)
+3. Add result detail view from history page
+4. Export pricing results as PDF or formatted report
 
 ## Key Decisions Made
 - 7-agent swarm: Research, Cost, Market, Value, Risk, Arbiter, Validator
@@ -15,25 +15,36 @@ Tune prompt quality and add result persistence.
 - OpenRouter API via openai SDK (model: arcee-ai/trinity-large-preview:free, configurable)
 - Research Agent: scrape business URL + LLM profiling (replaces manual client context input)
 - FastAPI + Jinja2 for web UI (no SPA complexity)
-- Runs on Windows natively via run.bat at localhost:8000
+- Linux-native via run.sh (run.bat kept for Windows)
 - Resilient JSON parser handles free model quirks (comma numbers, truncation, code blocks)
 - All agents retry once on JSON parse failure
+- Results persisted as JSON to results/ directory
+- Pricing-strategy skill created from two skills.sh sources (used to inform agent prompts)
+- 8-agent swarm: Research, Cost, Market, Value, Risk, Packaging, Arbiter, Validator
+- Packaging Agent runs in parallel with specialists, feeds into Arbiter
+- Prompt contracts defined in prompt-contracts.md
+- 89 automated tests (models, JSON parser, contract validation across 6 saved results)
+- SSE streaming progress page with real-time agent status updates
+- Async job architecture (POST returns immediately, background swarm)
+- sse-starlette dependency added
 
 ## Active Constraints
-- App runs on Windows natively (not WSL) -- Python must be installed on Windows
-- Free LLM model truncates long responses; arbiter uses 4096 max_tokens to compensate
-- No persistence yet -- results shown in browser only, not saved
-- No Packaging Agent yet
+- Free LLM model truncates long responses; arbiter uses 4096 max_tokens + field reordering to compensate
 
 ## Tested and Passing
 - Google.com (website redesign): Floor $47.5K / Target $81.2K / Stretch $102.5K
 - Shopify.com (API integration): Floor $75K / Target $147K / Stretch $206K
 - Stripe.com (security audit): Floor $47.5K / Target $62.5K / Stretch $81.2K
-- All passed validation
+- HubSpot.com (AI workshop): Floor $18K / Target $26K / Stretch $34K
+- Notion.so (brand redesign): Floor $60K / Target $90K / Stretch $120K
+- Deloitte.com (AI training): Floor $14K / Target $21K / Stretch $26K
+- AngiesList.com (WordPress redesign): Floor $5.25K / Target $7K / Stretch $8.75K (validation failed -- correctly flagged overpricing vs budget)
+- Siemens.com (ERP migration): Floor $1.875M / Target $2.625M / Stretch $3.375M EUR
+- Chipotle.com (mobile app MVP): Floor $231K / Target $375K / Stretch $481K
+- 7/8 passed validation (1 intentionally flagged by Validator)
 
 ## Remaining High-Priority Items
-- Tune agent system prompts based on output quality
-- Add result persistence
-- Implement Packaging Agent
-- Add prompt contracts
-- Automated regression tests for pricing quality
+- Better LLM model for higher quality outputs
+- Comparison view for pricing runs
+- Result detail view from history page
+- PDF/report export

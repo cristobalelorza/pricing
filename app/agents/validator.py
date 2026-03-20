@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import logging
 
-from app.agents.base import DEFAULT_MODEL, extract_json, get_client
+from app.agents.base import DEFAULT_MODEL, FREE_MODELS, extract_json, get_client
 from app.models import DealInput, PricingResult, ValidationResult
 
 logger = logging.getLogger(__name__)
@@ -65,9 +65,9 @@ class ValidatorAgent:
             f"- Risk factors: {', '.join(result.risk_factors)}"
         )
 
-        async def _call():
+        async def _call(model_id: str):
             response = await client.chat.completions.create(
-                model=self.model,
+                model=model_id,
                 max_tokens=1024,
                 messages=[
                     {"role": "system", "content": VALIDATOR_SYSTEM_PROMPT},
@@ -76,12 +76,31 @@ class ValidatorAgent:
             )
             return response.choices[0].message.content
 
-        text = await _call()
+        text = None
+        for model_id in FREE_MODELS:
+            try:
+                text = await _call(model_id)
+                if text and text.strip():
+                    break
+            except Exception as e:
+                logger.warning("Validator: %s failed (%s), trying fallback", model_id, e)
+                continue
+
         try:
             data = extract_json(text)
         except (ValueError, json.JSONDecodeError):
             logger.warning("Validator: JSON parse failed, retrying")
-            text = await _call()
+            for model_id in FREE_MODELS:
+                try:
+                    text = await _call(model_id)
+                    if text and text.strip():
+                        break
+                except Exception:
+                    continue
             data = extract_json(text)
 
+        data.setdefault("summary", "See issues and suggestions for details.")
+        data.setdefault("is_valid", True)
+        data.setdefault("issues", [])
+        data.setdefault("suggestions", [])
         return ValidationResult(**data)

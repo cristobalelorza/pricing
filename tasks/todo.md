@@ -27,9 +27,34 @@
 - [x] End-to-end validation (tested: Google, Shopify, Stripe -- all pass)
 
 ## Up Next
-- [ ] Tune agent system prompts based on output quality
-- [ ] Add result persistence (save pricing results to disk)
-- [ ] Implement Packaging Agent
-- [ ] Add prompt contracts (formal input/output specs per agent)
-- [ ] Automated regression tests for pricing quality
-- [ ] Run more diverse test cases (training, design, small business)
+- [ ] Improve model quality (try paid models for better reasoning)
+- [ ] Add multi-currency comparison normalization
+- [ ] Add team/stakeholder sharing (shareable result links)
+- [ ] Dashboard with pricing analytics across all runs
+
+## Recently Completed
+- [x] Model tier system (free/cheap/mid/premium) with UI selector
+- [x] Rate limit handling (backoff retries + staggered agent launches for free models)
+- [x] History detail view (click any row in /history to see full result)
+- [x] PDF export (weasyprint, professional report format, download from result page)
+- [x] Comparison view (/compare -- side-by-side two pricing runs)
+- [x] Re-run with changes (pre-fills form from a previous result, edit insights and re-price)
+- [x] Insights input field (competitive intelligence: current vendors, WTP signals, pain points)
+- [x] Negotiation Agent (anchor price, concession ladder, objection responses, tactics)
+- [x] Discovery Agent (standard, business-specific, indirect questions + signals to listen for)
+- [x] 10-agent swarm: Research + Cost + Market + Value + Risk + Packaging + Negotiation + Discovery + Arbiter + Validator
+- [x] 101 automated tests all passing
+- [x] SSE streaming progress page (real-time agent status updates in browser)
+- [x] Async job architecture (POST /price returns immediately, background processing)
+- [x] Ran 3 more diverse test cases (training/Deloitte, small biz/Angie's List, ERP migration/Siemens)
+- [x] 89 automated tests all passing (models, JSON parser, contract validation across 6 results)
+- [x] Implemented Packaging Agent (recommends pricing structure with components and alternatives)
+- [x] Added prompt contracts (prompt-contracts.md -- formal input/output specs per agent)
+- [x] Linux launcher (run.sh replaces run.bat for Linux)
+- [x] Tuned agent system prompts (all specialist + arbiter prompts improved)
+- [x] Added result persistence (JSON files saved to results/ directory)
+- [x] Added /history page to view past pricing results
+- [x] Fixed Arbiter truncation (reordered JSON fields, increased truncation recovery, added "no commas" instruction)
+- [x] Fixed extract_json truncation recovery (increased line trim from 15 to 40, added comma-position fallback)
+- [x] Created pricing-strategy skill (combined from two skills.sh sources, tested with 3 evals)
+- [x] Fixed run.bat error message (referenced wrong API key name)
