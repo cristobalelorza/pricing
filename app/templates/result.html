@@ -236,6 +236,16 @@
         {% endif %}
     </details>
 
+    {% if result_filename %}
+    <section class="note-section">
+        <h3>Notes</h3>
+        <form action="/history/{{ result_filename }}/note" method="post" class="note-form">
+            <textarea name="note" rows="2" placeholder="Add a note: client accepted, lost on price, follow up needed...">{{ result_note or '' }}</textarea>
+            <button type="submit" class="back-btn">Save Note</button>
+        </form>
+    </section>
+    {% endif %}
+
     <div class="result-actions">
         <a href="/" class="back-btn">Price Another Deal</a>
         {% if result_filename %}

@@ -1,0 +1,10 @@
+{
+  "id": "f92ca08f3b",
+  "name": "Website Redesign",
+  "description": "Full website redesign with modern stack",
+  "default_constraints": "",
+  "estimated_hours": 160.0,
+  "hourly_rate": 150.0,
+  "normal_delivery_days": 60,
+  "fast_delivery_days": 30
+}

@@ -10,7 +10,7 @@
     {% if services %}
     <div class="card-grid">
         {% for svc in services %}
-        <div class="entity-card">
+        <div class="entity-card" onclick="window.location='/services/{{ svc.id }}/edit'" style="cursor:pointer">
             <h3>{{ svc.name }}</h3>
             <p class="entity-meta">{{ svc.description[:80] }}</p>
             <div class="entity-details">

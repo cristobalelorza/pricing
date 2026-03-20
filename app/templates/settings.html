@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="result">
+    <h2>Account Settings</h2>
+
+    <section>
+        <h3>Credits</h3>
+        <div class="stat-grid">
+            <div class="stat-card">
+                <span class="stat-number">{{ user.credits_remaining }}</span>
+                <span class="stat-label">Free Runs Left</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-number">{{ "Yes" if user.openrouter_key else "No" }}</span>
+                <span class="stat-label">Own API Key</span>
+            </div>
+        </div>
+        {% if user.credits_remaining <= 0 and not user.openrouter_key %}
+        <div class="auth-error" style="margin-top: 1rem;">
+            You've used all your free credits. Add your OpenRouter API key below to continue pricing.
+        </div>
+        {% endif %}
+    </section>
+
+    <section>
+        <h3>OpenRouter API Key</h3>
+        <p style="color: var(--text-dim); font-size: 0.85rem; margin-bottom: 0.75rem;">
+            Add your own OpenRouter key for unlimited runs. Get one free at
+            <a href="https://openrouter.ai/keys" target="_blank" style="color: var(--accent-blue);">openrouter.ai/keys</a>
+        </p>
+        <form action="/settings/key" method="post" class="note-form">
+            <input type="text" name="api_key" placeholder="sk-or-v1-..." value="{{ user.openrouter_key or '' }}">
+            <button type="submit" class="back-btn">Save Key</button>
+        </form>
+    </section>
+
+    <section>
+        <h3>Account</h3>
+        <p style="color: var(--text-secondary);">{{ user.email }}</p>
+        <p style="color: var(--text-dim); font-size: 0.85rem;">Member since {{ user.created_at[:10] }}</p>
+        <form action="/logout" method="post" style="margin-top: 1rem;">
+            <button type="submit" class="back-btn">Sign Out</button>
+        </form>
+    </section>
+</div>
+{% endblock %}

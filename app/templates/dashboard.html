@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="result">
+    <h2>Dashboard</h2>
+
+    <div class="stat-grid">
+        <div class="stat-card">
+            <span class="stat-number">{{ total_businesses }}</span>
+            <span class="stat-label">Businesses</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-number">{{ total_services }}</span>
+            <span class="stat-label">Services</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-number">{{ total_runs }}</span>
+            <span class="stat-label">Pricing Runs</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-number">{{ "{:,.0f}".format(avg_target) }}</span>
+            <span class="stat-label">Avg Target Price</span>
+        </div>
+    </div>
+
+    {% if recent %}
+    <h3 style="margin-top: 2rem; color: var(--text-secondary); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.06em;">Recent Pricing Runs</h3>
+    <table class="history-table">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Client</th>
+                <th>Service</th>
+                <th>Target</th>
+                <th>Valid</th>
+                <th>Note</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for r in recent %}
+            <tr onclick="window.location='/history/{{ r.filename }}'" style="cursor:pointer">
+                <td>{{ r.timestamp }}</td>
+                <td>{{ r.url }}</td>
+                <td>{{ r.service }}</td>
+                <td>{{ "{:,.0f}".format(r.target) }} {{ r.currency }}</td>
+                <td>{% if r.valid is none %}-{% elif r.valid %}Yes{% else %}No{% endif %}</td>
+                <td class="note-cell">{{ r.note[:30] if r.note else '' }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+
+    <div class="result-actions" style="margin-top: 1.5rem;">
+        <a href="/" class="back-btn export-btn">New Pricing</a>
+        <a href="/businesses" class="back-btn">Businesses</a>
+        <a href="/services" class="back-btn">Services</a>
+        <a href="/history" class="back-btn">Full History</a>
+    </div>
+</div>
+{% endblock %}

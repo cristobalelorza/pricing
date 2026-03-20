@@ -5,16 +5,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Precio - B2B Pricing Swarm</title>
     <link rel="stylesheet" href="/static/style.css">
+    <script>
+    // Apply saved theme immediately to prevent flash
+    (function() {
+        var t = localStorage.getItem('theme');
+        if (t === 'light') document.documentElement.dataset.theme = 'light';
+    })();
+    </script>
 </head>
 <body>
     <header>
         <h1><a href="/">Precio</a></h1>
         <p class="subtitle">B2B Service Pricing Agent Swarm</p>
+        <a href="/dashboard" class="nav-link">Dashboard</a>
         <a href="/businesses" class="nav-link">Businesses</a>
         <a href="/services" class="nav-link">Services</a>
         <a href="/history" class="nav-link">History</a>
         <a href="/compare" class="nav-link">Compare</a>
-        <a href="/ab-test" class="nav-link">A/B Test</a>
+        <a href="/ab-test" class="nav-link">A/B</a>
+        <a href="/settings" class="nav-link">Settings</a>
+        <button class="theme-toggle" id="theme-toggle" title="Toggle light/dark mode">
+            <span id="theme-icon">&#9790;</span>
+        </button>
     </header>
     <main>
         {% block content %}{% endblock %}
@@ -22,5 +34,27 @@
     <footer>
         <p>Parallel + Arbiter + Validator | Cost, Market, Value, Risk</p>
     </footer>
+    <script>
+    (function() {
+        var btn = document.getElementById('theme-toggle');
+        var icon = document.getElementById('theme-icon');
+        function update() {
+            var isLight = document.documentElement.dataset.theme === 'light';
+            icon.textContent = isLight ? '\u2600' : '\u263D';
+        }
+        update();
+        btn.addEventListener('click', function() {
+            var isLight = document.documentElement.dataset.theme === 'light';
+            if (isLight) {
+                delete document.documentElement.dataset.theme;
+                localStorage.setItem('theme', 'dark');
+            } else {
+                document.documentElement.dataset.theme = 'light';
+                localStorage.setItem('theme', 'light');
+            }
+            update();
+        });
+    })();
+    </script>
 </body>
 </html>

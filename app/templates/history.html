@@ -4,6 +4,17 @@
 <div class="result">
     <h2>Pricing History</h2>
 
+    <form action="/history" method="get" class="search-bar">
+        <input type="text" name="q" placeholder="Search by client or service..." value="{{ search_q or '' }}">
+        <select name="currency">
+            <option value="">All currencies</option>
+            {% for c in currencies %}
+            <option value="{{ c }}" {% if search_currency == c %}selected{% endif %}>{{ c }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="back-btn">Search</button>
+    </form>
+
     {% if results %}
     <table class="history-table">
         <thead>
@@ -15,6 +26,7 @@
                 <th>Target</th>
                 <th>Stretch</th>
                 <th>Valid</th>
+                <th>Note</th>
             </tr>
         </thead>
         <tbody>
@@ -27,14 +39,16 @@
                 <td>{{ "{:,.0f}".format(r.target) }} {{ r.currency }}</td>
                 <td>{{ "{:,.0f}".format(r.stretch) }} {{ r.currency }}</td>
                 <td>{% if r.valid is none %}-{% elif r.valid %}Yes{% else %}No{% endif %}</td>
+                <td class="note-cell">{{ r.note[:30] if r.note else '' }}</td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
+    <p style="color: var(--text-muted); font-size: 0.8rem;">{{ results|length }} results</p>
     {% else %}
-    <p>No pricing results saved yet. Run a pricing analysis first.</p>
+    <p style="color: var(--text-dim);">No pricing results found{% if search_q %} matching "{{ search_q }}"{% endif %}.</p>
     {% endif %}
 
-    <a href="/" class="back-btn">New Pricing</a>
+    <a href="/" class="back-btn" style="margin-top: 1rem;">New Pricing</a>
 </div>
 {% endblock %}

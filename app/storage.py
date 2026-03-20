@@ -49,6 +49,14 @@ def save_business(biz: Business) -> Business:
     return biz
 
 
+def delete_business(business_id: str) -> bool:
+    path = BUSINESSES_DIR / f"{business_id}.json"
+    if path.exists():
+        path.unlink()
+        return True
+    return False
+
+
 def add_pricing_run_to_business(business_id: str, result_filename: str):
     biz = get_business(business_id)
     if biz:
@@ -83,7 +91,37 @@ def save_service(svc: ServiceTemplate) -> ServiceTemplate:
     return svc
 
 
+def delete_service(service_id: str) -> bool:
+    path = SERVICES_DIR / f"{service_id}.json"
+    if path.exists():
+        path.unlink()
+        return True
+    return False
+
+
 # --- Results ---
+
+def list_all_results() -> list[dict]:
+    """Load all saved pricing results with metadata."""
+    results = []
+    for path in sorted(RESULTS_DIR.glob("*.json"), reverse=True):
+        try:
+            data = json.loads(path.read_text())
+            data["filename"] = path.name
+            results.append(data)
+        except (json.JSONDecodeError, Exception):
+            continue
+    return results
+
+
+def add_note_to_result(filename: str, note: str):
+    """Add/update a note on a saved result."""
+    path = RESULTS_DIR / filename
+    if not path.exists():
+        return
+    data = json.loads(path.read_text())
+    data["note"] = note
+    path.write_text(json.dumps(data, indent=2, default=str))
 
 def get_business_results(business_id: str) -> list[dict]:
     """Get all pricing results linked to a business."""

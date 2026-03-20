@@ -2,26 +2,33 @@
 
 {% block content %}
 <div class="result">
-    <h2>New Business</h2>
+    <h2>{% if biz %}Edit Business{% else %}New Business{% endif %}</h2>
 
-    <form action="/businesses" method="post">
+    <form action="{% if biz %}/businesses/{{ biz.id }}/edit{% else %}/businesses{% endif %}" method="post">
         <div class="form-group">
             <label for="name">Business Name</label>
-            <input type="text" id="name" name="name" placeholder="Acme Corp" required>
+            <input type="text" id="name" name="name" placeholder="Acme Corp" value="{{ biz.name if biz else '' }}" required>
         </div>
         <div class="form-group">
             <label for="url">Website URL</label>
-            <input type="text" id="url" name="url" placeholder="https://acme.com" required>
+            <input type="text" id="url" name="url" placeholder="https://acme.com" value="{{ biz.url if biz else '' }}" required>
         </div>
         <div class="form-group">
             <label for="industry">Industry</label>
-            <input type="text" id="industry" name="industry" placeholder="SaaS, Fintech, E-commerce...">
+            <input type="text" id="industry" name="industry" placeholder="SaaS, Fintech, E-commerce..." value="{{ biz.industry if biz else '' }}">
         </div>
         <div class="form-group">
             <label for="notes">Notes</label>
-            <textarea id="notes" name="notes" rows="3" placeholder="Key context about this business..."></textarea>
+            <textarea id="notes" name="notes" rows="3" placeholder="Key context about this business...">{{ biz.notes if biz else '' }}</textarea>
         </div>
-        <button type="submit">Create Business</button>
+        <div class="result-actions">
+            <button type="submit">{% if biz %}Save Changes{% else %}Create Business{% endif %}</button>
+            {% if biz %}
+            <form action="/businesses/{{ biz.id }}/delete" method="post" style="display:inline" onsubmit="return confirm('Delete this business?')">
+                <button type="submit" class="back-btn" style="background: var(--accent-red); color: #fff; border-color: var(--accent-red);">Delete</button>
+            </form>
+            {% endif %}
+        </div>
     </form>
 </div>
 {% endblock %}

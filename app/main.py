@@ -10,7 +10,7 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, Form, Request
-from fastapi.responses import HTMLResponse, Response
+from fastapi.responses import HTMLResponse, RedirectResponse, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from sse_starlette.sse import EventSourceResponse
@@ -18,24 +18,14 @@ from sse_starlette.sse import EventSourceResponse
 from app.agents import ResearcherAgent
 from app.agents.base import DEFAULT_MODEL, FREE_MODELS, MODEL_TIERS, PREMIUM_MODEL
 from app.models import (
-    Business,
     Currency,
     DealInput,
     PricingResult,
-    ServiceTemplate,
     StructuredInsights,
 )
-from app.storage import (
-    add_pricing_run_to_business,
-    get_business,
-    get_service,
-    list_businesses,
-    list_services,
-    new_id,
-    save_business,
-    save_service,
-)
+from app.auth import AuthMiddleware, SESSION_COOKIE, create_session_token
 from app.swarm import run_swarm_streaming
+import app.db as db
 
 load_dotenv()
 
@@ -46,10 +36,9 @@ logging.basicConfig(
 logger = logging.getLogger("precio")
 
 BASE_DIR = Path(__file__).resolve().parent
-RESULTS_DIR = BASE_DIR.parent / "results"
-RESULTS_DIR.mkdir(exist_ok=True)
 
 app = FastAPI(title="Precio - B2B Pricing Swarm")
+app.add_middleware(AuthMiddleware)
 app.mount("/static", StaticFiles(directory=BASE_DIR.parent / "static"), name="static")
 templates = Jinja2Templates(directory=BASE_DIR / "templates")
 
@@ -61,37 +50,95 @@ _MODEL_TIER_OPTIONS = [
     {"id": "premium", "label": f"Premium ({_premium_short}) - Arbiter + Negotiation"},
 ]
 
-_current_model_tier = "premium"  # default: use premium for critical agents
+_current_model_tier = "premium"
 
 
-def save_result(deal: DealInput, result) -> Path:
-    """Persist a pricing result to disk as JSON."""
+def _uid(request: Request) -> str:
+    """Get the authenticated user ID from request."""
+    return getattr(request.state, "user_id", "")
+
+
+def save_result_to_db(user_id: str, deal: DealInput, result) -> str:
+    """Persist a pricing result to SQLite."""
     ts = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
     domain = deal.business_url.replace("https://", "").replace("http://", "").split("/")[0]
     filename = f"{ts}_{domain}.json"
-    path = RESULTS_DIR / filename
+    deal_json = json.dumps(deal.model_dump(mode="json"), default=str)
+    result_json = json.dumps(result.model_dump(mode="json"), default=str)
+    db.save_result(user_id, deal.business_id, filename, deal_json, result_json)
+    logger.info("Result saved: %s for user %s", filename, user_id)
+    return filename
 
-    data = {
-        "timestamp": datetime.now(timezone.utc).isoformat(),
-        "deal": deal.model_dump(mode="json"),
-        "result": result.model_dump(mode="json"),
-    }
-    path.write_text(json.dumps(data, indent=2, default=str))
-    logger.info("Result saved to %s", path)
-    return path
+
+# === Auth Routes ===
+
+@app.get("/login", response_class=HTMLResponse)
+async def login_page(request: Request):
+    return templates.TemplateResponse("login.html", {"request": request, "error": None})
+
+
+@app.post("/login", response_class=HTMLResponse)
+async def login(request: Request, email: str = Form(...), password: str = Form(...)):
+    user = db.authenticate(email, password)
+    if not user:
+        return templates.TemplateResponse("login.html", {"request": request, "error": "Invalid email or password."})
+    token = create_session_token(user["id"])
+    response = RedirectResponse(url="/dashboard", status_code=302)
+    response.set_cookie(SESSION_COOKIE, token, max_age=60*60*24*30, httponly=True, samesite="lax")
+    return response
+
+
+@app.get("/register", response_class=HTMLResponse)
+async def register_page(request: Request):
+    return templates.TemplateResponse("register.html", {"request": request, "error": None, "free_credits": db.FREE_CREDITS})
+
+
+@app.post("/register", response_class=HTMLResponse)
+async def register(request: Request, email: str = Form(...), password: str = Form(...)):
+    if len(password) < 8:
+        return templates.TemplateResponse("register.html", {"request": request, "error": "Password must be at least 8 characters.", "free_credits": db.FREE_CREDITS})
+    user = db.create_user(email, password)
+    if not user:
+        return templates.TemplateResponse("register.html", {"request": request, "error": "An account with that email already exists.", "free_credits": db.FREE_CREDITS})
+    token = create_session_token(user["id"])
+    response = RedirectResponse(url="/dashboard", status_code=302)
+    response.set_cookie(SESSION_COOKIE, token, max_age=60*60*24*30, httponly=True, samesite="lax")
+    return response
+
+
+@app.post("/logout")
+async def logout(request: Request):
+    response = RedirectResponse(url="/login", status_code=302)
+    response.delete_cookie(SESSION_COOKIE)
+    return response
+
+
+@app.get("/settings", response_class=HTMLResponse)
+async def settings_page(request: Request):
+    user = db.get_user(_uid(request))
+    return templates.TemplateResponse("settings.html", {"request": request, "user": user})
+
+
+@app.post("/settings/key")
+async def settings_key(request: Request, api_key: str = Form("")):
+    db.update_user_key(_uid(request), api_key.strip())
+    return RedirectResponse(url="/settings", status_code=303)
 
 
 
 def _form_ctx(request, prefill=None):
     """Common context for the pricing form."""
+    uid = _uid(request)
+    user = db.get_user(uid)
     return {
         "request": request,
         "currencies": [c.value for c in Currency],
         "prefill": prefill or {},
         "model_tiers": _MODEL_TIER_OPTIONS,
         "current_model": _current_model_tier,
-        "businesses": list_businesses(),
-        "services": list_services(),
+        "businesses": db.list_businesses(uid),
+        "services": db.list_services(uid),
+        "user": user,
     }
 
 
@@ -191,9 +238,27 @@ async def price(
         service_template_id=service_template_id,
     )
 
+    # Check credits
+    uid = _uid(request)
+    if not db.use_credit(uid):
+        user = db.get_user(uid)
+        if user and not user["openrouter_key"]:
+            return RedirectResponse(url="/settings", status_code=303)
+        return templates.TemplateResponse(
+            "error.html",
+            {"request": request, "error": "Daily run limit reached (20/day). Try again tomorrow.", "deal": deal},
+        )
+
+    # Set API key for this run (user's own key or server default)
+    import app.agents.base as base_mod2
+    api_key = db.get_user_api_key(uid)
+    if api_key:
+        base_mod2._client = None  # reset client to pick up new key
+        os.environ["OPENROUTER_API_KEY"] = api_key
+
     # Create a job and return the progress page immediately
     job_id = uuid.uuid4().hex[:12]
-    _jobs[job_id] = {"deal": deal, "status": "starting", "result": None, "error": None}
+    _jobs[job_id] = {"deal": deal, "status": "starting", "result": None, "error": None, "user_id": uid}
 
     # Start the swarm in the background
     asyncio.create_task(_run_job(job_id))
@@ -248,13 +313,12 @@ async def _run_job(job_id: str):
 
         result = await run_swarm_streaming(deal, on_status)
 
-        # Step 3: Persist and link to business
-        result_path = save_result(deal, result)
-        if deal.business_id:
-            add_pricing_run_to_business(deal.business_id, result_path.name)
+        # Step 3: Persist to database
+        user_id = job.get("user_id", "")
+        result_filename = save_result_to_db(user_id, deal, result)
 
         job["result"] = result
-        job["result_filename"] = result_path.name
+        job["result_filename"] = result_filename
         job["status"] = "done"
     except Exception as e:
         logger.exception("Swarm failed for job %s", job_id)
@@ -321,46 +385,29 @@ async def result_page(request: Request, job_id: str):
 
 
 @app.get("/history", response_class=HTMLResponse)
-async def history(request: Request):
-    """Show saved pricing results."""
-    results = []
-    for path in sorted(RESULTS_DIR.glob("*.json"), reverse=True):
-        try:
-            data = json.loads(path.read_text())
-            results.append({
-                "filename": path.name,
-                "timestamp": data["timestamp"],
-                "url": data["deal"]["business_url"],
-                "service": data["deal"]["service_description"][:80],
-                "floor": data["result"]["price_floor"],
-                "target": data["result"]["price_target"],
-                "stretch": data["result"]["price_stretch"],
-                "currency": data["result"]["currency"],
-                "valid": data["result"].get("validation", {}).get("is_valid", None),
-            })
-        except (json.JSONDecodeError, KeyError):
-            continue
+async def history(request: Request, q: str = "", currency: str = ""):
+    results = db.list_results(_uid(request), search=q, currency=currency)
     return templates.TemplateResponse(
         "history.html",
-        {"request": request, "results": results},
+        {"request": request, "results": results, "search_q": q, "search_currency": currency,
+         "currencies": [c.value for c in Currency]},
     )
 
 
 @app.get("/history/{filename}", response_class=HTMLResponse)
 async def history_detail(request: Request, filename: str):
-    """View a saved pricing result."""
-    path = RESULTS_DIR / filename
-    if not path.exists() or not path.suffix == ".json":
+    row = db.get_result(_uid(request), filename)
+    if not row:
         return templates.TemplateResponse(
             "error.html",
             {"request": request, "error": "Result not found.", "deal": DealInput(service_description="", business_url="")},
         )
-    data = json.loads(path.read_text())
-    deal = DealInput(**data["deal"])
-    result = PricingResult(**data["result"])
+    deal = DealInput(**json.loads(row["deal_json"]))
+    result = PricingResult(**json.loads(row["result_json"]))
     return templates.TemplateResponse(
         "result.html",
-        {"request": request, "deal": deal, "result": result, "result_filename": filename},
+        {"request": request, "deal": deal, "result": result,
+         "result_filename": filename, "result_note": row.get("note", "")},
     )
 
 
@@ -493,7 +540,7 @@ async def ab_test_run(
     arbiter_mod.ArbiterAgent.model = base_mod.PREMIUM_MODEL
 
     if results_files[0] and results_files[1]:
-        from starlette.responses import RedirectResponse
+        pass  # RedirectResponse already imported at top
         return RedirectResponse(
             url=f"/compare?a={results_files[0]}&b={results_files[1]}",
             status_code=303,
@@ -511,7 +558,7 @@ async def ab_test_run(
 async def businesses_list(request: Request):
     return templates.TemplateResponse(
         "businesses.html",
-        {"request": request, "businesses": list_businesses()},
+        {"request": request, "businesses": db.list_businesses(_uid(request))},
     )
 
 
@@ -531,46 +578,46 @@ async def business_create(
     industry: str = Form(""),
     notes: str = Form(""),
 ):
-    from starlette.responses import RedirectResponse
-    biz = Business(id=new_id(), name=name, url=url, industry=industry, notes=notes)
-    save_business(biz)
-    return RedirectResponse(url=f"/businesses/{biz.id}", status_code=303)
+    pass  # RedirectResponse already imported at top
+    biz = db.save_business(_uid(request), None, name, url, industry, notes)
+    return RedirectResponse(url=f"/businesses/{biz['id']}", status_code=303)
 
 
 @app.get("/businesses/{biz_id}", response_class=HTMLResponse)
 async def business_detail(request: Request, biz_id: str):
-    biz = get_business(biz_id)
+    uid = _uid(request)
+    biz = db.get_business(uid, biz_id)
     if not biz:
         return templates.TemplateResponse(
             "error.html",
             {"request": request, "error": "Business not found.", "deal": DealInput(service_description="", business_url="")},
         )
-    from app.storage import get_business_results
-    runs = get_business_results(biz_id)
+    runs = db.get_business_results(uid, biz_id)
     return templates.TemplateResponse(
         "business_detail.html",
-        {"request": request, "biz": biz, "runs": runs, "services": list_services()},
+        {"request": request, "biz": biz, "runs": runs, "services": db.list_services(uid)},
     )
 
 
 @app.get("/businesses/{biz_id}/price", response_class=HTMLResponse)
 async def business_price(request: Request, biz_id: str, svc: str = ""):
-    biz = get_business(biz_id)
+    uid = _uid(request)
+    biz = db.get_business(uid, biz_id)
     if not biz:
         return templates.TemplateResponse(
             "error.html",
             {"request": request, "error": "Business not found.", "deal": DealInput(service_description="", business_url="")},
         )
-    prefill = {"business_url": biz.url, "business_id": biz_id}
-    svc_obj = get_service(svc) if svc else None
+    prefill = {"business_url": biz["url"], "business_id": biz_id}
+    svc_obj = db.get_service(uid, svc) if svc else None
     if svc_obj:
-        prefill["service_description"] = svc_obj.description
-        prefill["constraints"] = svc_obj.default_constraints
-        prefill["service_template_id"] = svc_obj.id
-        prefill["our_hours_estimate"] = str(svc_obj.estimated_hours or "")
-        prefill["our_hourly_rate"] = str(svc_obj.hourly_rate or "")
-        prefill["normal_delivery_days"] = str(svc_obj.normal_delivery_days or "")
-        prefill["fast_delivery_days"] = str(svc_obj.fast_delivery_days or "")
+        prefill["service_description"] = svc_obj["description"]
+        prefill["constraints"] = svc_obj.get("default_constraints", "")
+        prefill["service_template_id"] = svc_obj["id"]
+        prefill["our_hours_estimate"] = str(svc_obj.get("estimated_hours") or "")
+        prefill["our_hourly_rate"] = str(svc_obj.get("hourly_rate") or "")
+        prefill["normal_delivery_days"] = str(svc_obj.get("normal_delivery_days") or "")
+        prefill["fast_delivery_days"] = str(svc_obj.get("fast_delivery_days") or "")
     return templates.TemplateResponse("index.html", _form_ctx(request, prefill))
 
 
@@ -580,7 +627,7 @@ async def business_price(request: Request, biz_id: str, svc: str = ""):
 async def services_list(request: Request):
     return templates.TemplateResponse(
         "services.html",
-        {"request": request, "services": list_services()},
+        {"request": request, "services": db.list_services(_uid(request))},
     )
 
 
@@ -603,16 +650,96 @@ async def service_create(
     normal_delivery_days: int | None = Form(None),
     fast_delivery_days: int | None = Form(None),
 ):
-    from starlette.responses import RedirectResponse
-    svc = ServiceTemplate(
-        id=new_id(),
-        name=name,
-        description=description,
-        default_constraints=default_constraints,
-        estimated_hours=estimated_hours,
-        hourly_rate=hourly_rate,
-        normal_delivery_days=normal_delivery_days,
-        fast_delivery_days=fast_delivery_days,
-    )
-    save_service(svc)
+    pass  # RedirectResponse already imported at top
+    db.save_service(_uid(request), None,
+        name=name, description=description, default_constraints=default_constraints,
+        estimated_hours=estimated_hours, hourly_rate=hourly_rate,
+        normal_delivery_days=normal_delivery_days, fast_delivery_days=fast_delivery_days)
     return RedirectResponse(url="/services", status_code=303)
+
+
+@app.get("/services/{svc_id}/edit", response_class=HTMLResponse)
+async def service_edit(request: Request, svc_id: str):
+    svc = db.get_service(_uid(request), svc_id)
+    if not svc:
+        return templates.TemplateResponse("error.html", {"request": request, "error": "Service not found.", "deal": DealInput(service_description="", business_url="")})
+    return templates.TemplateResponse("service_form.html", {"request": request, "svc": svc})
+
+
+@app.post("/services/{svc_id}/edit")
+async def service_update(
+    request: Request, svc_id: str,
+    name: str = Form(...), description: str = Form(...),
+    default_constraints: str = Form(""),
+    estimated_hours: float | None = Form(None), hourly_rate: float | None = Form(None),
+    normal_delivery_days: int | None = Form(None), fast_delivery_days: int | None = Form(None),
+):
+    pass  # RedirectResponse already imported at top
+    db.save_service(_uid(request), svc_id,
+        name=name, description=description, default_constraints=default_constraints,
+        estimated_hours=estimated_hours, hourly_rate=hourly_rate,
+        normal_delivery_days=normal_delivery_days, fast_delivery_days=fast_delivery_days)
+    return RedirectResponse(url="/services", status_code=303)
+
+
+@app.post("/services/{svc_id}/delete")
+async def service_delete(request: Request, svc_id: str):
+    db.delete_service(_uid(request), svc_id)
+    return RedirectResponse(url="/services", status_code=303)
+
+
+# === Business Edit/Delete ===
+
+@app.get("/businesses/{biz_id}/edit", response_class=HTMLResponse)
+async def business_edit(request: Request, biz_id: str):
+    biz = db.get_business(_uid(request), biz_id)
+    if not biz:
+        return templates.TemplateResponse("error.html", {"request": request, "error": "Business not found.", "deal": DealInput(service_description="", business_url="")})
+    return templates.TemplateResponse("business_form.html", {"request": request, "biz": biz})
+
+
+@app.post("/businesses/{biz_id}/edit")
+async def business_update(
+    request: Request, biz_id: str,
+    name: str = Form(...), url: str = Form(...),
+    industry: str = Form(""), notes: str = Form(""),
+):
+    pass  # RedirectResponse already imported at top
+    db.save_business(_uid(request), biz_id, name, url, industry, notes)
+    return RedirectResponse(url=f"/businesses/{biz_id}", status_code=303)
+
+
+@app.post("/businesses/{biz_id}/delete")
+async def business_delete(request: Request, biz_id: str):
+    db.delete_business(_uid(request), biz_id)
+    return RedirectResponse(url="/businesses", status_code=303)
+
+
+# === Notes on Pricing Results ===
+
+@app.post("/history/{filename}/note")
+async def add_note(request: Request, filename: str, note: str = Form("")):
+    db.add_note_to_result(_uid(request), filename, note)
+    return RedirectResponse(url=f"/history/{filename}", status_code=303)
+
+
+# === Service API for JS auto-populate ===
+
+@app.get("/api/services/{svc_id}")
+async def api_service(request: Request, svc_id: str):
+    svc = db.get_service(_uid(request), svc_id)
+    if not svc:
+        return {"error": "not found"}
+    return svc
+
+
+# === Dashboard ===
+
+@app.get("/dashboard", response_class=HTMLResponse)
+async def dashboard(request: Request):
+    stats = db.dashboard_stats(_uid(request))
+    user = db.get_user(_uid(request))
+    return templates.TemplateResponse(
+        "dashboard.html",
+        {"request": request, "user": user, **stats},
+    )

@@ -224,5 +224,23 @@ document.getElementById('pricing-form').addEventListener('submit', function() {
     document.getElementById('submit-btn').disabled = true;
     document.getElementById('loading').classList.remove('hidden');
 });
+
+// Auto-populate form fields when a service template is selected
+document.getElementById('service_template_id').addEventListener('change', function() {
+    var svcId = this.value;
+    if (!svcId) return;
+    fetch('/api/services/' + svcId)
+        .then(function(r) { return r.json(); })
+        .then(function(svc) {
+            if (svc.error) return;
+            var f = document.getElementById;
+            if (svc.description) document.getElementById('service_description').value = svc.description;
+            if (svc.default_constraints) document.getElementById('constraints').value = svc.default_constraints;
+            if (svc.estimated_hours) document.getElementById('our_hours_estimate').value = svc.estimated_hours;
+            if (svc.hourly_rate) document.getElementById('our_hourly_rate').value = svc.hourly_rate;
+            if (svc.normal_delivery_days) document.getElementById('normal_delivery_days').value = svc.normal_delivery_days;
+            if (svc.fast_delivery_days) document.getElementById('fast_delivery_days').value = svc.fast_delivery_days;
+        });
+});
 </script>
 {% endblock %}

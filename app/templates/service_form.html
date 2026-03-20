@@ -2,44 +2,53 @@
 
 {% block content %}
 <div class="result">
-    <h2>New Service Template</h2>
+    <h2>{% if svc %}Edit Service Template{% else %}New Service Template{% endif %}</h2>
 
-    <form action="/services" method="post">
+    <form action="{% if svc %}/services/{{ svc.id }}/edit{% else %}/services{% endif %}" method="post">
         <div class="form-group">
             <label for="name">Service Name</label>
-            <input type="text" id="name" name="name" placeholder="Website Redesign" required>
+            <input type="text" id="name" name="name" placeholder="Website Redesign" value="{{ svc.name if svc else '' }}" required>
         </div>
         <div class="form-group">
             <label for="description">Description</label>
             <textarea id="description" name="description" rows="4"
-                placeholder="Full description of the service including scope, deliverables, and what's included." required></textarea>
+                placeholder="Full description of the service including scope, deliverables, and what's included." required>{{ svc.description if svc else '' }}</textarea>
         </div>
         <div class="form-group">
             <label for="default_constraints">Default Constraints</label>
             <textarea id="default_constraints" name="default_constraints" rows="2"
-                placeholder="Standard constraints for this service type"></textarea>
+                placeholder="Standard constraints for this service type">{{ svc.default_constraints if svc else '' }}</textarea>
         </div>
         <div class="form-row">
             <div class="form-group">
                 <label for="estimated_hours">Estimated Hours</label>
-                <input type="number" id="estimated_hours" name="estimated_hours" step="0.5" min="0" placeholder="160">
+                <input type="number" id="estimated_hours" name="estimated_hours" step="0.5" min="0" placeholder="160" value="{{ svc.estimated_hours if svc and svc.estimated_hours else '' }}">
             </div>
             <div class="form-group">
                 <label for="hourly_rate">Hourly Rate</label>
-                <input type="number" id="hourly_rate" name="hourly_rate" step="0.01" min="0" placeholder="150">
+                <input type="number" id="hourly_rate" name="hourly_rate" step="0.01" min="0" placeholder="150" value="{{ svc.hourly_rate if svc and svc.hourly_rate else '' }}">
             </div>
         </div>
         <div class="form-row">
             <div class="form-group">
                 <label for="normal_delivery_days">Normal Delivery (days)</label>
-                <input type="number" id="normal_delivery_days" name="normal_delivery_days" min="1" placeholder="60">
+                <input type="number" id="normal_delivery_days" name="normal_delivery_days" min="1" placeholder="60" value="{{ svc.normal_delivery_days if svc and svc.normal_delivery_days else '' }}">
             </div>
             <div class="form-group">
                 <label for="fast_delivery_days">Fast Delivery (days)</label>
-                <input type="number" id="fast_delivery_days" name="fast_delivery_days" min="1" placeholder="30">
+                <input type="number" id="fast_delivery_days" name="fast_delivery_days" min="1" placeholder="30" value="{{ svc.fast_delivery_days if svc and svc.fast_delivery_days else '' }}">
             </div>
         </div>
-        <button type="submit">Create Service Template</button>
-    </form>
+        <div class="result-actions">
+            <button type="submit">{% if svc %}Save Changes{% else %}Create Service Template{% endif %}</button>
+            {% if svc %}
+            </form>
+            <form action="/services/{{ svc.id }}/delete" method="post" style="display:inline" onsubmit="return confirm('Delete this service template?')">
+                <button type="submit" class="back-btn" style="background: var(--accent-red); color: #fff; border-color: var(--accent-red);">Delete</button>
+            </form>
+            {% else %}
+            </form>
+            {% endif %}
+        </div>
 </div>
 {% endblock %}
