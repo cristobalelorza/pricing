@@ -16,7 +16,7 @@
                 <span class="stat-label">Own API Key</span>
             </div>
         </div>
-        {% if user.credits_remaining <= 0 and not user.openrouter_key %}
+        {% if user and user.credits_remaining is not none and user.credits_remaining <= 0 and not user.openrouter_key %}
         <div class="auth-error" style="margin-top: 1rem;">
             You've used all your free credits. Add your OpenRouter API key below to continue pricing.
         </div>
