@@ -36,6 +36,20 @@
                 required>
             <span class="field-hint">We'll research the business automatically</span>
         </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="provider_location">Your Location</label>
+                <input type="text" id="provider_location" name="provider_location"
+                    placeholder="Santiago, Chile"
+                    value="{{ prefill.get('provider_location', '') }}">
+            </div>
+            <div class="form-group">
+                <label for="client_location">Client Location</label>
+                <input type="text" id="client_location" name="client_location"
+                    placeholder="Sydney, Australia"
+                    value="{{ prefill.get('client_location', '') }}">
+            </div>
+        </div>
         <div class="form-group">
             <label for="service_description">Service Description</label>
             <textarea id="service_description" name="service_description" rows="3"

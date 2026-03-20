@@ -195,6 +195,19 @@ class BaseAgent(ABC):
             f"## Service Description\n{deal.service_description}",
             f"## Client Context\n{deal.client_context}",
         ]
+
+        # Location context
+        if deal.provider_location or deal.client_location:
+            loc_lines = ["## Location Context"]
+            if deal.provider_location:
+                loc_lines.append(f"- Provider (us) is based in: {deal.provider_location}")
+            if deal.client_location:
+                loc_lines.append(f"- Client is based in: {deal.client_location}")
+            if deal.provider_location and deal.client_location and deal.provider_location != deal.client_location:
+                loc_lines.append("- This is a cross-border engagement. Adjust for local market rates, purchasing power, timezone differences, and currency implications.")
+            loc_lines.append("- IMPORTANT: Adjust all pricing to the CLIENT's local market. Labor rates, market benchmarks, and value estimates should reflect where the client operates, not global averages.")
+            parts.append("\n".join(loc_lines))
+
         if deal.constraints:
             parts.append(f"## Constraints\n{deal.constraints}")
         if deal.budget_hint is not None:

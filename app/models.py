@@ -58,6 +58,7 @@ class Business(BaseModel):
     name: str
     url: str
     industry: str = ""
+    location: str = Field(default="", description="City, Country -- e.g. Sydney, Australia")
     notes: str = ""
     pricing_run_ids: list[str] = Field(default_factory=list)
 
@@ -94,6 +95,12 @@ class DealInput(BaseModel):
         default=None, description="Optional budget signal from the client"
     )
     currency: Currency = Field(default=Currency.USD)
+    provider_location: str = Field(
+        default="", description="Where you (the provider) are based -- e.g. Santiago, Chile"
+    )
+    client_location: str = Field(
+        default="", description="Where the client is based -- e.g. Sydney, Australia"
+    )
     insights: str = Field(
         default="",
         description="Legacy plain-text insights (kept for backward compat)",

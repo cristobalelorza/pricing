@@ -10,6 +10,8 @@ class CostAgent(BaseAgent):
 
 Your job: estimate the FLOOR PRICE -- the minimum price to deliver this service without losing money.
 
+If location information is provided, adjust labor rates for the PROVIDER's location. A developer in Santiago, Chile has very different rates than one in Sydney, Australia or San Francisco, USA.
+
 Build your estimate bottom-up:
 - Labor: list roles needed, seniority, estimated hours, and hourly/daily rates
 - Materials, tools, software licenses, infrastructure

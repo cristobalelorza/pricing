@@ -19,6 +19,8 @@ class RiskAgent(BaseAgent):
 
 Your job: assess delivery risk and recommend a PRICE ADJUSTMENT percentage to account for uncertainty.
 
+If provider and client are in different countries, consider cross-border risks: timezone gaps, communication friction, legal/tax implications, currency fluctuation, and cultural differences.
+
 Evaluate these risk dimensions:
 - Scope ambiguity: is the work well-defined or vague? Can scope creep occur?
 - Technical complexity: known technology or novel/unproven?

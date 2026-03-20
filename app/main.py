@@ -184,6 +184,8 @@ async def price(
     model_tier: str = Form("premium"),
     business_id: str = Form(""),
     service_template_id: str = Form(""),
+    provider_location: str = Form(""),
+    client_location: str = Form(""),
     # Structured insights fields
     has_competitor: str = Form(""),
     competitor_url: str = Form(""),
@@ -232,6 +234,8 @@ async def price(
         constraints=constraints,
         budget_hint=budget_hint if budget_hint else None,
         currency=Currency(currency),
+        provider_location=provider_location,
+        client_location=client_location,
         insights=insights,
         structured_insights=si,
         business_id=business_id,
@@ -580,10 +584,10 @@ async def business_create(
     name: str = Form(...),
     url: str = Form(...),
     industry: str = Form(""),
+    location: str = Form(""),
     notes: str = Form(""),
 ):
-    pass  # RedirectResponse already imported at top
-    biz = db.save_business(_uid(request), None, name, url, industry, notes)
+    biz = db.save_business(_uid(request), None, name, url, industry, notes, location)
     return RedirectResponse(url=f"/businesses/{biz['id']}", status_code=303)
 
 
@@ -612,7 +616,7 @@ async def business_price(request: Request, biz_id: str, svc: str = ""):
             "error.html",
             {"request": request, "error": "Business not found.", "deal": DealInput(service_description="", business_url="")},
         )
-    prefill = {"business_url": biz["url"], "business_id": biz_id}
+    prefill = {"business_url": biz["url"], "business_id": biz_id, "client_location": biz.get("location", "")}
     svc_obj = db.get_service(uid, svc) if svc else None
     if svc_obj:
         prefill["service_description"] = svc_obj["description"]
@@ -706,10 +710,9 @@ async def business_edit(request: Request, biz_id: str):
 async def business_update(
     request: Request, biz_id: str,
     name: str = Form(...), url: str = Form(...),
-    industry: str = Form(""), notes: str = Form(""),
+    industry: str = Form(""), location: str = Form(""), notes: str = Form(""),
 ):
-    pass  # RedirectResponse already imported at top
-    db.save_business(_uid(request), biz_id, name, url, industry, notes)
+    db.save_business(_uid(request), biz_id, name, url, industry, notes, location)
     return RedirectResponse(url=f"/businesses/{biz_id}", status_code=303)
 
 

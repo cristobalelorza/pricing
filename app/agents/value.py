@@ -10,6 +10,8 @@ class ValueAgent(BaseAgent):
 
 Your job: estimate a VALUE-BASED PRICE by quantifying the business impact this service creates for the client.
 
+If the client's location is provided, scale your ROI and revenue estimates to their local market. A 10% revenue increase means very different dollar amounts for a business in Chile vs Australia vs the US.
+
 Estimation approach:
 - What specific problem does this solve? What does the client lose by not solving it?
 - Revenue impact: will this generate new revenue, save costs, or avoid losses? Estimate the annual dollar amount.

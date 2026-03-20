@@ -47,6 +47,7 @@ def _init_tables(conn: sqlite3.Connection):
             name TEXT NOT NULL,
             url TEXT NOT NULL,
             industry TEXT DEFAULT '',
+            location TEXT DEFAULT '',
             notes TEXT DEFAULT '',
             created_at TEXT NOT NULL,
             FOREIGN KEY (user_id) REFERENCES users(id)
@@ -77,6 +78,23 @@ def _init_tables(conn: sqlite3.Connection):
         );
     """)
     conn.commit()
+
+    # Add location column to businesses if missing (migration)
+    try:
+        conn.execute("ALTER TABLE businesses ADD COLUMN location TEXT DEFAULT ''")
+        conn.commit()
+    except sqlite3.OperationalError:
+        pass  # column already exists
+
+    # Create default admin account if no users exist
+    row = conn.execute("SELECT COUNT(*) FROM users").fetchone()
+    if row[0] == 0:
+        pw_hash = bcrypt.hashpw(b"admin", bcrypt.gensalt()).decode()
+        conn.execute(
+            "INSERT INTO users (id, email, password_hash, credits_remaining, created_at) VALUES (?, ?, ?, ?, ?)",
+            ("admin", "admin", pw_hash, 9999, datetime.now(timezone.utc).isoformat()),
+        )
+        conn.commit()
 
 
 def new_id() -> str:
@@ -168,48 +186,52 @@ def get_user_api_key(user_id: str) -> str:
 
 # === Businesses (user-scoped) ===
 
-def list_businesses(user_id: str) -> list[dict]:
+def list_businesses(user_id: str = "") -> list[dict]:
+    """List all businesses (shared across all users)."""
     db = get_db()
-    rows = db.execute("SELECT * FROM businesses WHERE user_id = ? ORDER BY name", (user_id,)).fetchall()
+    rows = db.execute("SELECT * FROM businesses ORDER BY name").fetchall()
     return [dict(r) for r in rows]
 
 
 def get_business(user_id: str, biz_id: str) -> dict | None:
+    """Get a business by ID (shared, no user filter)."""
     db = get_db()
-    row = db.execute("SELECT * FROM businesses WHERE id = ? AND user_id = ?", (biz_id, user_id)).fetchone()
+    row = db.execute("SELECT * FROM businesses WHERE id = ?", (biz_id,)).fetchone()
     return dict(row) if row else None
 
 
-def save_business(user_id: str, biz_id: str | None, name: str, url: str, industry: str = "", notes: str = "") -> dict:
+def save_business(user_id: str, biz_id: str | None, name: str, url: str, industry: str = "", notes: str = "", location: str = "") -> dict:
     db = get_db()
     if biz_id:
-        db.execute("UPDATE businesses SET name=?, url=?, industry=?, notes=? WHERE id=? AND user_id=?",
-                   (name, url, industry, notes, biz_id, user_id))
+        db.execute("UPDATE businesses SET name=?, url=?, industry=?, location=?, notes=? WHERE id=?",
+                   (name, url, industry, location, notes, biz_id))
     else:
         biz_id = new_id()
-        db.execute("INSERT INTO businesses (id, user_id, name, url, industry, notes, created_at) VALUES (?,?,?,?,?,?,?)",
-                   (biz_id, user_id, name, url, industry, notes, now_iso()))
+        db.execute("INSERT INTO businesses (id, user_id, name, url, industry, location, notes, created_at) VALUES (?,?,?,?,?,?,?,?)",
+                   (biz_id, user_id, name, url, industry, location, notes, now_iso()))
     db.commit()
     return get_business(user_id, biz_id)
 
 
 def delete_business(user_id: str, biz_id: str):
     db = get_db()
-    db.execute("DELETE FROM businesses WHERE id = ? AND user_id = ?", (biz_id, user_id))
+    db.execute("DELETE FROM businesses WHERE id = ?", (biz_id,))
     db.commit()
 
 
 # === Services (user-scoped) ===
 
-def list_services(user_id: str) -> list[dict]:
+def list_services(user_id: str = "") -> list[dict]:
+    """List all services (shared across all users)."""
     db = get_db()
-    rows = db.execute("SELECT * FROM services WHERE user_id = ? ORDER BY name", (user_id,)).fetchall()
+    rows = db.execute("SELECT * FROM services ORDER BY name").fetchall()
     return [dict(r) for r in rows]
 
 
 def get_service(user_id: str, svc_id: str) -> dict | None:
+    """Get a service by ID (shared, no user filter)."""
     db = get_db()
-    row = db.execute("SELECT * FROM services WHERE id = ? AND user_id = ?", (svc_id, user_id)).fetchone()
+    row = db.execute("SELECT * FROM services WHERE id = ?", (svc_id,)).fetchone()
     return dict(row) if row else None
 
 
@@ -233,7 +255,7 @@ def save_service(user_id: str, svc_id: str | None, **fields) -> dict:
 
 def delete_service(user_id: str, svc_id: str):
     db = get_db()
-    db.execute("DELETE FROM services WHERE id = ? AND user_id = ?", (svc_id, user_id))
+    db.execute("DELETE FROM services WHERE id = ?", (svc_id,))
     db.commit()
 
 

@@ -13,9 +13,15 @@
             <label for="url">Website URL</label>
             <input type="text" id="url" name="url" placeholder="https://acme.com" value="{{ biz.url if biz else '' }}" required>
         </div>
-        <div class="form-group">
-            <label for="industry">Industry</label>
-            <input type="text" id="industry" name="industry" placeholder="SaaS, Fintech, E-commerce..." value="{{ biz.industry if biz else '' }}">
+        <div class="form-row">
+            <div class="form-group">
+                <label for="industry">Industry</label>
+                <input type="text" id="industry" name="industry" placeholder="SaaS, Fintech, E-commerce..." value="{{ biz.industry if biz else '' }}">
+            </div>
+            <div class="form-group">
+                <label for="location">Location</label>
+                <input type="text" id="location" name="location" placeholder="Sydney, Australia" value="{{ biz.location if biz else '' }}">
+            </div>
         </div>
         <div class="form-group">
             <label for="notes">Notes</label>

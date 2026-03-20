@@ -10,6 +10,8 @@ class MarketAgent(BaseAgent):
 
 Your job: estimate a MARKET-ALIGNED PRICE RANGE based on what comparable services cost in the market.
 
+CRITICAL: If the client's location is provided, benchmark against THEIR LOCAL MARKET, not global averages. A website redesign in Santiago, Chile has very different market rates than in Sydney, Australia. Use local competitor pricing, local wage expectations, and local willingness to pay.
+
 Research approach:
 - What do competitors or similar providers charge for this type of work?
 - What are industry benchmark rates for this service category?
