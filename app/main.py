@@ -422,18 +422,17 @@ async def history_detail(request: Request, filename: str):
 @app.get("/export/{filename}")
 async def export_pdf(request: Request, filename: str):
     """Export a saved pricing result as PDF."""
-    path = RESULTS_DIR / filename
-    if not path.exists() or not path.suffix == ".json":
+    row = db.get_result(_uid(request), filename)
+    if not row:
         return Response("Result not found", status_code=404)
 
-    data = json.loads(path.read_text())
-    deal = DealInput(**data["deal"])
-    result = PricingResult(**data["result"])
+    deal = DealInput(**json.loads(row["deal_json"]))
+    result = PricingResult(**json.loads(row["result_json"]))
 
     html_content = templates.get_template("report.html").render(
         deal=deal,
         result=result,
-        timestamp=data.get("timestamp", ""),
+        timestamp=row.get("created_at", ""),
     )
 
     from weasyprint import HTML
@@ -450,29 +449,21 @@ async def export_pdf(request: Request, filename: str):
 @app.get("/compare", response_class=HTMLResponse)
 async def compare(request: Request, a: str = "", b: str = ""):
     """Compare two pricing results side by side."""
-    all_results = []
-    for path in sorted(RESULTS_DIR.glob("*.json"), reverse=True):
-        try:
-            data = json.loads(path.read_text())
-            all_results.append({
-                "filename": path.name,
-                "label": f"{data['deal']['business_url']} - {data['deal']['service_description'][:50]}",
-            })
-        except (json.JSONDecodeError, KeyError):
-            continue
+    uid = _uid(request)
+    rows = db.list_results(uid)
+    all_results = [{"filename": r["filename"], "label": f"{r['url']} - {r['service'][:50]}"} for r in rows]
 
     result_a = result_b = deal_a = deal_b = None
     if a and b:
         for fn, var in [(a, "a"), (b, "b")]:
-            path = RESULTS_DIR / fn
-            if path.exists():
-                data = json.loads(path.read_text())
+            row = db.get_result(uid, fn)
+            if row:
+                d = DealInput(**json.loads(row["deal_json"]))
+                r = PricingResult(**json.loads(row["result_json"]))
                 if var == "a":
-                    deal_a = DealInput(**data["deal"])
-                    result_a = PricingResult(**data["result"])
+                    deal_a, result_a = d, r
                 else:
-                    deal_b = DealInput(**data["deal"])
-                    result_b = PricingResult(**data["result"])
+                    deal_b, result_b = d, r
 
     return templates.TemplateResponse(
         "compare.html",
@@ -538,8 +529,8 @@ async def ab_test_run(
 
         try:
             result = await run_swarm_streaming(deal)
-            path = save_result(deal, result)
-            results_files.append(path.name)
+            fname = save_result_to_db(_uid(request), deal, result)
+            results_files.append(fname)
         except Exception as e:
             logger.exception("A/B test %s run failed", label)
             results_files.append(None)
