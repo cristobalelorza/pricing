@@ -33,11 +33,11 @@ logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s %(name)s %(levelname)s %(message)s",
 )
-logger = logging.getLogger("precio")
+logger = logging.getLogger("pricing")
 
 BASE_DIR = Path(__file__).resolve().parent
 
-app = FastAPI(title="Precio - B2B Pricing Swarm")
+app = FastAPI(title="Pricing - B2B Pricing Swarm")
 app.add_middleware(AuthMiddleware)
 app.mount("/static", StaticFiles(directory=BASE_DIR.parent / "static"), name="static")
 templates = Jinja2Templates(directory=BASE_DIR / "templates")
@@ -764,7 +764,7 @@ async def admin_feedback(request: Request):
 async def export_feedback(request: Request):
     """Export all feedback as markdown for Claude to read."""
     items = db.list_feedback()
-    lines = ["# Precio Feedback Report", "", f"Generated: {datetime.now(timezone.utc).isoformat()}", ""]
+    lines = ["# Pricing Feedback Report", "", f"Generated: {datetime.now(timezone.utc).isoformat()}", ""]
     for item in items:
         lines.append(f"## [{item['category'].upper()}] {item['created_at'][:10]}")
         lines.append(f"- **From:** {item['user_email']}")

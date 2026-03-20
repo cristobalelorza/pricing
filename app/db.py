@@ -1,4 +1,4 @@
-"""Database layer for Precio. Uses Supabase (PostgreSQL) when configured, falls back to SQLite for local dev."""
+"""Database layer for Pricing. Uses Supabase (PostgreSQL) when configured, falls back to SQLite for local dev."""
 
 from __future__ import annotations
 
@@ -32,7 +32,7 @@ def _get_supabase():
 
 # --- SQLite fallback for local dev ---
 _sqlite_conn = None
-SQLITE_PATH = os.getenv("SQLITE_PATH", str(Path(__file__).resolve().parent.parent / "data" / "precio.db"))
+SQLITE_PATH = os.getenv("SQLITE_PATH", str(Path(__file__).resolve().parent.parent / "data" / "pricing.db"))
 
 
 def _get_sqlite():

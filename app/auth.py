@@ -12,8 +12,8 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import RedirectResponse
 
-SECRET_KEY = os.getenv("SECRET_KEY", "precio-dev-secret-change-in-prod")
-SESSION_COOKIE = "precio_session"
+SECRET_KEY = os.getenv("SECRET_KEY", "pricing-dev-secret-change-in-prod")
+SESSION_COOKIE = "pricing_session"
 SESSION_MAX_AGE = 60 * 60 * 24 * 30  # 30 days
 
 PUBLIC_PATHS = {"/login", "/register", "/static"}

@@ -1,4 +1,4 @@
--- Precio: Initial schema for Supabase PostgreSQL
+-- Pricing: Initial schema for Supabase PostgreSQL
 -- Run this in your Supabase SQL Editor (Dashboard > SQL Editor > New Query)
 
 -- Users table (our own auth, not Supabase auth)
