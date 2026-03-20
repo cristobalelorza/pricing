@@ -10,6 +10,9 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import bcrypt
+from dotenv import load_dotenv
+
+load_dotenv()  # Ensure .env is loaded before reading config
 
 # --- Configuration ---
 SUPABASE_URL = os.getenv("SUPABASE_URL", "")
