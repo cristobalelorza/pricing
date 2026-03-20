@@ -83,7 +83,7 @@ async def login(request: Request, email: str = Form(...), password: str = Form(.
     if not user:
         return templates.TemplateResponse("login.html", {"request": request, "error": "Invalid email or password."})
     token = create_session_token(user["id"])
-    response = RedirectResponse(url="/dashboard", status_code=302)
+    response = RedirectResponse(url="/dashboard", status_code=303)
     response.set_cookie(SESSION_COOKIE, token, max_age=60*60*24*30, httponly=True, samesite="lax")
     return response
 
@@ -101,7 +101,7 @@ async def register(request: Request, email: str = Form(...), password: str = For
     if not user:
         return templates.TemplateResponse("register.html", {"request": request, "error": "An account with that email already exists.", "free_credits": db.FREE_CREDITS})
     token = create_session_token(user["id"])
-    response = RedirectResponse(url="/dashboard", status_code=302)
+    response = RedirectResponse(url="/dashboard", status_code=303)
     response.set_cookie(SESSION_COOKIE, token, max_age=60*60*24*30, httponly=True, samesite="lax")
     return response
 
@@ -240,9 +240,13 @@ async def price(
 
     # Check credits
     uid = _uid(request)
+    if not uid:
+        return RedirectResponse(url="/login", status_code=302)
+    user = db.get_user(uid)
+    if not user:
+        return RedirectResponse(url="/login", status_code=302)
     if not db.use_credit(uid):
-        user = db.get_user(uid)
-        if user and not user["openrouter_key"]:
+        if user["credits_remaining"] <= 0 and not user["openrouter_key"]:
             return RedirectResponse(url="/settings", status_code=303)
         return templates.TemplateResponse(
             "error.html",
