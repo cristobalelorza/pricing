@@ -1,24 +1,31 @@
-# Session Summary - 2026-03-17 / 2026-03-18
+# Session Summary - 2026-03-19 to 2026-03-20
 
 ## What happened
-1. Built Precio from scratch (empty directory to full working project)
-2. Created 6-agent pricing swarm: Cost, Market, Value, Risk, Arbiter, Validator
-3. Built FastAPI web UI with dark theme
-4. Switched from Anthropic SDK to OpenRouter (openai SDK) per user's API setup
-5. Removed WSL networking hacks -- app runs on Windows natively via run.bat
-6. Added Research Agent: auto-scrapes business URL + LLM summarization for client profiling
-7. Fixed JSON parsing for free model quirks (commas in numbers like 1,088,750, truncated responses, code blocks)
-8. Added retry logic on all agents, error page for graceful failures
-9. Tested 3 URLs end-to-end: Google, Shopify, Stripe -- all pass with validation
-10. Created and maintained all project docs per CLAUDE.md requirements
+1. Analyzed two pricing skills from skills.sh, created a combined pricing-strategy skill
+2. Adapted app for Linux (run.sh), tuned all agent prompts
+3. Added result persistence, history page, PDF export
+4. Implemented Packaging Agent, Negotiation Agent, Discovery Agent (10-agent swarm)
+5. Added structured insights form (competitor scraping, cost inputs, delivery speed, client signals)
+6. Added business management and service templates with CRUD
+7. Built SSE streaming progress page, comparison view, A/B testing
+8. Added light/dark mode, search/filter history, notes per result, dashboard
+9. Switched from SQLite to Supabase Cloud (PostgreSQL) with SQLite fallback
+10. Added auth system (bcrypt + session cookies), freemium credits
+11. Added feedback widget on every page
+12. Added location-aware pricing (provider + client location)
+13. Created Docker deployment, deployed to Railway
+14. Set up Railway CLI, configured env vars, verified live deployment
+15. Renamed project from Precio to Pricing
 
 ## Key decisions
-- OpenRouter API with arcee-ai/trinity-large-preview:free (not Anthropic SDK)
-- Research Agent replaces manual client context -- user just pastes a URL
-- Arbiter gets 4096 max_tokens (free model truncates at 2048)
-- Progressive JSON repair: strip number commas, trim truncated lines, auto-close braces/quotes
+- Supabase Cloud over Docker self-hosted (simpler, free, no maintenance)
+- Custom auth over Supabase Auth (already built, simpler)
+- Weighted model rotation (nemotron 60%, stepfun 40%) over single-model
+- Premium minimax for Arbiter + Negotiation only (cost optimization)
+- Shared businesses/services, user-scoped results
+- 303 redirects for all POST handlers (not 302)
 
-## What needs to happen next
-- Tune agent prompts with more diverse test cases
-- Add result persistence (save to disk for review)
-- Implement Packaging Agent
+## Live deployment
+- URL: https://web-production-7a5eb.up.railway.app
+- Railway project: appealing-quietude
+- Supabase project: jkvnlcosnhymvvmwimkl

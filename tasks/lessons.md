@@ -1,45 +1,61 @@
-# Precio - Lessons Learned
+# Pricing - Lessons Learned
 
 ## Runtime Environment
-- **Context**: User runs Claude Code from WSL2, but the app itself runs on Windows natively
-- **Lesson**: Do not add WSL-specific networking hacks. Keep the app Windows-native with localhost:8000
-- **Detection**: If "connection refused", check that Python + deps are installed on Windows and run.bat is used
+- **Context**: User runs Linux natively (Kali)
+- **Lesson**: Use run.sh with venv. App deploys via Docker on Railway.
 
 ## API Backend
-- **Context**: User has OpenRouter key, not Anthropic. Uses openai SDK pointed at OpenRouter.
-- **Lesson**: Do not assume Anthropic SDK. The project uses OpenRouter with openai-compatible API.
-- **Model**: Configurable via AUTOCOMPRA_LLM_MODEL env var (default: arcee-ai/trinity-large-preview:free)
+- **Context**: Uses OpenRouter API with openai-compatible SDK. Multiple models.
+- **Lesson**: Do not assume a single model. The app rotates across free models (stepfun, nemotron, arcee) with premium (minimax) for critical agents.
+- **Models configured via .env**: premium, free_main, free_first_fallback, free_second_fallback
+
+## Free Model Rotation
+- **Problem**: Free models have rate limits (8-20 req/min). Firing 10 agents in parallel hammers one provider.
+- **Fix**: Weighted round-robin rotation: nemotron gets 60% of requests (more reliable), stepfun 40% (faster but returns empty sometimes). Arcee is last-resort fallback only.
+- **Lesson**: Never hit a single free model with all agents at once. Rotate and stagger.
 
 ## Agent JSON Extraction
-- **Problem**: Free LLM models produce invalid JSON in multiple ways:
-  1. Markdown code block wrapping (`\`\`\`json ... \`\`\``)
-  2. Commas in numbers (e.g. `1,088,750.00`)
-  3. Truncated responses (model runs out of tokens mid-JSON)
-  4. Trailing commas, single quotes, comments
-- **Fix**: extract_json() in base.py handles all cases:
-  - Strips markdown blocks
-  - Removes commas from numbers (`while` loop for multi-comma like `1,088,750`)
-  - Progressive line-trimming for truncated JSON (closes open braces/brackets/strings)
-  - Regex cleanup for trailing commas, comments, single quotes
-- **Lesson**: Free models are unreliable JSON producers. Always build resilient parsing.
-- **Mitigation**: Arbiter uses 4096 max_tokens (up from 2048) to reduce truncation frequency.
+- **Problem**: Free LLM models produce invalid JSON (commas in numbers, truncation, code blocks, trailing commas)
+- **Fix**: extract_json() in base.py: strips markdown, removes number commas, progressive line-trimming, comma-position fallback, auto-close braces
+- **Lesson**: Always build resilient JSON parsing for free models. Put numeric fields first in schema so truncation loses text, not numbers.
 
-## Stale __pycache__
-- **Problem**: After editing Python files, uvicorn with --reload can still use stale .pyc files
-- **Fix**: Delete __pycache__ directories before restarting when debugging
-- **Lesson**: When a fix doesn't take effect, clear __pycache__ first
+## Arbiter Truncation
+- **Problem**: Free models truncate long Arbiter responses mid-string
+- **Fix**: Reorder JSON fields (prices first, rationale last). Instruct "keep rationale under 200 words" and "no commas in numbers".
+- **Lesson**: Most important fields first in the JSON schema. Premium model (minimax) mostly avoids this.
 
-## Arbiter JSON Truncation
-- **Problem**: Free models truncate the Arbiter's JSON response mid-string, especially when rationale is a long field placed early in the JSON
-- **Fix**: Reorder JSON fields so numeric values come first (prices, confidence) and long text fields last (rationale). Also instruct the model to keep rationale under 200 words and not use commas in numbers.
-- **Lesson**: When LLM output is truncated, put the most important fields first in the schema. The truncation repair can recover partial JSON but only if the critical fields are already complete.
+## Truncation Defaults
+- **Problem**: All agent models can return truncated JSON missing fields. Pydantic validation crashes.
+- **Fix**: Every agent's analyze() method has setdefault() for all optional fields before constructing the Pydantic model.
+- **Lesson**: Always add setdefault() for every field that could be truncated. Don't trust the model to always produce complete JSON.
 
-## Linux Runtime
-- **Context**: User runs Linux natively (not Windows, not WSL)
-- **Lesson**: Provide run.sh alongside run.bat. Use python3, venv, and standard Linux paths.
-- **Detection**: Check which OS the user is on before assuming Windows-native execution
+## Supabase Connection
+- **Problem**: Supabase new API keys use `sb_secret_...` format, not the old JWT `eyJ...` format. Supabase Python SDK works with both.
+- **Fix**: Use the secret key as the SUPABASE_KEY. Works for all REST API operations.
+- **Lesson**: The Supabase REST API cannot run raw DDL SQL. Use Supabase MCP or SQL Editor for table creation.
 
-## Docs Must Stay Current
-- **Context**: User explicitly requires all project docs to be perfect and traceable
-- **Lesson**: After any code change, update all affected docs before marking work done
-- **Docs to check**: PLAN.md, spec.md, pricing-methodology.md, data-model.md, architecture.md, state.md, tasks/todo.md, tasks/lessons.md, validation.md, handoff.md, state/session-summary.md
+## Supabase MCP
+- **Context**: Installed supabase MCP plugin for direct SQL access from Claude
+- **Lesson**: Use mcp__supabase__apply_migration for DDL (CREATE TABLE), mcp__supabase__execute_sql for DML (INSERT, UPDATE, SELECT). Need personal access token (sbp_...) not project key.
+
+## Database Env Loading
+- **Problem**: db.py loaded before main.py called load_dotenv(), so SUPABASE_URL/KEY were empty
+- **Fix**: Add load_dotenv() at the top of db.py itself
+- **Lesson**: Any module that reads env vars at import time must call load_dotenv() itself.
+
+## Auth Redirect
+- **Problem**: Login redirect used HTTP 302, causing browsers to re-POST to /dashboard (405 Method Not Allowed)
+- **Fix**: Use 303 See Other (forces GET on redirect)
+- **Lesson**: Always use 303 for POST->redirect->GET flows, never 302.
+
+## Login Form Validation
+- **Problem**: HTML type="email" prevented logging in as "admin" (not an email)
+- **Fix**: Changed to type="text" for the login/register email field
+- **Lesson**: If usernames and emails are both valid, use type="text" not type="email".
+
+## Railway Deployment
+- **Context**: App deployed via Railway CLI
+- **Railway CLI location**: ~/.local/bin/railway
+- **Deploy command**: ~/.local/bin/railway up --service web
+- **Env vars**: Set via railway variables set (not from .env file)
+- **Lesson**: Railway can't auto-read .env from git (security). Set vars via CLI or dashboard.
