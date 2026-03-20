@@ -1210,6 +1210,76 @@ section li::marker {
     margin-top: 0.75rem;
 }
 
+/* === FEEDBACK WIDGET === */
+.fb-widget {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    z-index: 1000;
+}
+
+.fb-toggle {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--accent-blue);
+    color: #fff;
+    border: none;
+    font-size: 1.2rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    transition: transform 0.2s;
+}
+
+.fb-toggle:hover {
+    transform: scale(1.1);
+}
+
+.fb-panel {
+    position: absolute;
+    bottom: 56px;
+    right: 0;
+    width: 280px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-dim);
+    border-radius: var(--radius-lg);
+    padding: 1rem;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+}
+
+.fb-hidden {
+    display: none;
+}
+
+.fb-form h4 {
+    color: var(--text-primary);
+    margin-bottom: 0.6rem;
+    font-size: 0.85rem;
+    letter-spacing: 0.04em;
+}
+
+.fb-form select,
+.fb-form textarea {
+    width: 100%;
+    margin-bottom: 0.5rem;
+    font-size: 0.85rem;
+}
+
+.fb-form button {
+    width: 100%;
+    padding: 0.6rem;
+    background: var(--accent-blue);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
 /* === FOOTER === */
 footer {
     text-align: center;

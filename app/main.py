@@ -741,3 +741,42 @@ async def dashboard(request: Request):
         "dashboard.html",
         {"request": request, "user": user, **stats},
     )
+
+
+# === Feedback ===
+
+@app.post("/feedback")
+async def submit_feedback(request: Request, category: str = Form("suggestion"), message: str = Form(""), page_url: str = Form("")):
+    uid = _uid(request)
+    user = db.get_user(uid)
+    email = user["email"] if user else "unknown"
+    db.save_feedback(uid, email, page_url, category, message)
+    return RedirectResponse(url=page_url or "/dashboard", status_code=303)
+
+
+@app.get("/admin/feedback", response_class=HTMLResponse)
+async def admin_feedback(request: Request):
+    items = db.list_feedback()
+    return templates.TemplateResponse("admin_feedback.html", {"request": request, "items": items})
+
+
+@app.get("/admin/feedback/export")
+async def export_feedback(request: Request):
+    """Export all feedback as markdown for Claude to read."""
+    items = db.list_feedback()
+    lines = ["# Precio Feedback Report", "", f"Generated: {datetime.now(timezone.utc).isoformat()}", ""]
+    for item in items:
+        lines.append(f"## [{item['category'].upper()}] {item['created_at'][:10]}")
+        lines.append(f"- **From:** {item['user_email']}")
+        lines.append(f"- **Page:** {item['page_url']}")
+        lines.append(f"- **Status:** {item['status']}")
+        lines.append(f"\n{item['message']}\n")
+        lines.append("---\n")
+    content = "\n".join(lines)
+
+    # Also save to repo as markdown
+    feedback_path = Path(__file__).resolve().parent.parent / "feedback.md"
+    feedback_path.write_text(content)
+
+    return Response(content=content, media_type="text/markdown",
+                    headers={"Content-Disposition": 'attachment; filename="feedback.md"'})

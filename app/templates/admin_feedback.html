@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="result">
+    <div class="page-header">
+        <h2>Feedback & Bug Reports</h2>
+        <a href="/admin/feedback/export" class="back-btn export-btn">Export as Markdown</a>
+    </div>
+
+    {% if items %}
+    <table class="history-table">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>User</th>
+                <th>Type</th>
+                <th>Page</th>
+                <th>Message</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for f in items %}
+            <tr>
+                <td>{{ f.created_at[:10] }}</td>
+                <td>{{ f.user_email }}</td>
+                <td><span class="entity-tag">{{ f.category }}</span></td>
+                <td>{{ f.page_url }}</td>
+                <td>{{ f.message[:80] }}{% if f.message|length > 80 %}...{% endif %}</td>
+                <td>{{ f.status }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p style="color: var(--text-dim);">No feedback yet.</p>
+    {% endif %}
+</div>
+{% endblock %}

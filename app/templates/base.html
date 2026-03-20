@@ -31,6 +31,24 @@
     <main>
         {% block content %}{% endblock %}
     </main>
+    <!-- Feedback Widget -->
+    <div id="feedback-widget" class="fb-widget">
+        <button id="fb-toggle" class="fb-toggle" title="Report bug or suggestion">?</button>
+        <div id="fb-panel" class="fb-panel fb-hidden">
+            <form action="/feedback" method="post" class="fb-form">
+                <h4>Feedback</h4>
+                <select name="category">
+                    <option value="bug">Bug Report</option>
+                    <option value="suggestion" selected>Suggestion</option>
+                    <option value="other">Other</option>
+                </select>
+                <textarea name="message" rows="3" placeholder="What's on your mind?" required></textarea>
+                <input type="hidden" name="page_url" id="fb-page-url">
+                <button type="submit">Send</button>
+            </form>
+        </div>
+    </div>
+
     <footer>
         <p>Parallel + Arbiter + Validator | Cost, Market, Value, Risk</p>
     </footer>
@@ -53,6 +71,16 @@
                 localStorage.setItem('theme', 'light');
             }
             update();
+        });
+    })();
+    // Feedback widget
+    (function() {
+        var toggle = document.getElementById('fb-toggle');
+        var panel = document.getElementById('fb-panel');
+        var urlInput = document.getElementById('fb-page-url');
+        if (urlInput) urlInput.value = window.location.pathname;
+        if (toggle) toggle.addEventListener('click', function() {
+            panel.classList.toggle('fb-hidden');
         });
     })();
     </script>
