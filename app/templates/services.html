@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="result">
+    <div class="page-header">
+        <h2>Service Templates</h2>
+        <a href="/services/new" class="back-btn export-btn">+ New Service</a>
+    </div>
+
+    {% if services %}
+    <div class="card-grid">
+        {% for svc in services %}
+        <div class="entity-card">
+            <h3>{{ svc.name }}</h3>
+            <p class="entity-meta">{{ svc.description[:80] }}</p>
+            <div class="entity-details">
+                {% if svc.estimated_hours %}<span>{{ svc.estimated_hours }}h</span>{% endif %}
+                {% if svc.hourly_rate %}<span>${{ svc.hourly_rate }}/hr</span>{% endif %}
+                {% if svc.normal_delivery_days %}<span>{{ svc.normal_delivery_days }}d normal</span>{% endif %}
+                {% if svc.fast_delivery_days %}<span>{{ svc.fast_delivery_days }}d fast</span>{% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p style="color: var(--text-dim);">No service templates yet. Create reusable service definitions.</p>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="result">
+    <h2>A/B Model Test</h2>
+    <p style="color: var(--text-dim); margin-bottom: 1.5rem; font-size: 0.88rem;">
+        Run the same deal through premium (minimax) and free models side by side to compare output quality.
+    </p>
+
+    <form action="/ab-test" method="post" id="ab-form">
+        <div class="form-group">
+            <label for="business_url">Client Business URL</label>
+            <input type="text" id="business_url" name="business_url"
+                placeholder="https://example.com" required>
+        </div>
+
+        <div class="form-group">
+            <label for="service_description">Your Service</label>
+            <textarea id="service_description" name="service_description" rows="3"
+                placeholder="Describe the service being offered" required></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="constraints">Constraints (optional)</label>
+            <textarea id="constraints" name="constraints" rows="2"
+                placeholder="Timeline, budget caps, requirements"></textarea>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="budget_hint">Budget Hint (optional)</label>
+                <input type="number" id="budget_hint" name="budget_hint" step="0.01" min="0"
+                    placeholder="Client's budget signal">
+            </div>
+            <div class="form-group">
+                <label for="currency">Currency</label>
+                <select id="currency" name="currency">
+                    {% for c in currencies %}
+                    <option value="{{ c }}">{{ c }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="insights">Competitive Intelligence (optional)</label>
+            <textarea id="insights" name="insights" rows="3"
+                placeholder="Current vendors, WTP signals, pain points..."></textarea>
+        </div>
+
+        <button type="submit" id="submit-btn">Run A/B Test (Premium vs Free)</button>
+        <div id="loading" class="loading hidden">
+            <div class="spinner"></div>
+            <p>Running two pricing swarms... this takes 2-4 minutes.</p>
+        </div>
+    </form>
+</div>
+
+<script>
+document.getElementById('ab-form').addEventListener('submit', function() {
+    document.getElementById('submit-btn').disabled = true;
+    document.getElementById('loading').classList.remove('hidden');
+});
+</script>
+{% endblock %}

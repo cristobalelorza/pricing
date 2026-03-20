@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="result">
+    <h2>New Business</h2>
+
+    <form action="/businesses" method="post">
+        <div class="form-group">
+            <label for="name">Business Name</label>
+            <input type="text" id="name" name="name" placeholder="Acme Corp" required>
+        </div>
+        <div class="form-group">
+            <label for="url">Website URL</label>
+            <input type="text" id="url" name="url" placeholder="https://acme.com" required>
+        </div>
+        <div class="form-group">
+            <label for="industry">Industry</label>
+            <input type="text" id="industry" name="industry" placeholder="SaaS, Fintech, E-commerce...">
+        </div>
+        <div class="form-group">
+            <label for="notes">Notes</label>
+            <textarea id="notes" name="notes" rows="3" placeholder="Key context about this business..."></textarea>
+        </div>
+        <button type="submit">Create Business</button>
+    </form>
+</div>
+{% endblock %}

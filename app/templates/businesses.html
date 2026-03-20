@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="result">
+    <div class="page-header">
+        <h2>Businesses</h2>
+        <a href="/businesses/new" class="back-btn export-btn">+ New Business</a>
+    </div>
+
+    {% if businesses %}
+    <div class="card-grid">
+        {% for biz in businesses %}
+        <a href="/businesses/{{ biz.id }}" class="entity-card">
+            <h3>{{ biz.name }}</h3>
+            <p class="entity-meta">{{ biz.url }}</p>
+            {% if biz.industry %}<p class="entity-tag">{{ biz.industry }}</p>{% endif %}
+            <p class="entity-count">{{ biz.pricing_run_ids|length }} pricing runs</p>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p style="color: var(--text-dim);">No businesses yet. Create one to start organizing your pricing.</p>
+    {% endif %}
+</div>
+{% endblock %}

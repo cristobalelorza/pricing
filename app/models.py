@@ -7,8 +7,72 @@ from pydantic import BaseModel, Field
 class Currency(str, Enum):
     USD = "USD"
     EUR = "EUR"
-    CLP = "CLP"
     GBP = "GBP"
+    AUD = "AUD"
+    CAD = "CAD"
+    CLP = "CLP"
+    BRL = "BRL"
+    MXN = "MXN"
+    JPY = "JPY"
+    INR = "INR"
+    CHF = "CHF"
+    NZD = "NZD"
+    SGD = "SGD"
+    AED = "AED"
+    ZAR = "ZAR"
+
+
+class StructuredInsights(BaseModel):
+    """Compartmentalized competitive intelligence."""
+
+    # Competitor comparison
+    has_competitor: bool = False
+    competitor_url: str = ""
+    competitor_monthly_price: float | None = None
+    competitor_likes: str = ""
+    competitor_dislikes: str = ""
+    competitor_features: str = Field(
+        default="", description="Auto-populated from competitor URL scrape"
+    )
+
+    # Our cost inputs
+    our_hours_estimate: float | None = None
+    our_hourly_rate: float | None = None
+    delivery_speed: str = Field(default="normal", description="normal or fast")
+    normal_delivery_days: int | None = None
+    fast_delivery_days: int | None = None
+
+    # Client signals
+    wtp_signals: str = ""
+    owner_priorities: list[str] = Field(default_factory=list)
+    deal_breakers: str = ""
+
+    # Additional
+    additional_notes: str = ""
+
+
+class Business(BaseModel):
+    """A client business we are pricing services for."""
+
+    id: str
+    name: str
+    url: str
+    industry: str = ""
+    notes: str = ""
+    pricing_run_ids: list[str] = Field(default_factory=list)
+
+
+class ServiceTemplate(BaseModel):
+    """A reusable service definition."""
+
+    id: str
+    name: str
+    description: str
+    default_constraints: str = ""
+    estimated_hours: float | None = None
+    hourly_rate: float | None = None
+    normal_delivery_days: int | None = None
+    fast_delivery_days: int | None = None
 
 
 class DealInput(BaseModel):
@@ -32,8 +96,13 @@ class DealInput(BaseModel):
     currency: Currency = Field(default=Currency.USD)
     insights: str = Field(
         default="",
-        description="Competitive intelligence: current vendors, their prices, WTP signals, owner preferences",
+        description="Legacy plain-text insights (kept for backward compat)",
     )
+    structured_insights: StructuredInsights | None = Field(
+        default=None, description="Compartmentalized competitive intelligence"
+    )
+    business_id: str = Field(default="", description="Linked business entity")
+    service_template_id: str = Field(default="", description="Linked service template")
 
 
 class AgentProposal(BaseModel):

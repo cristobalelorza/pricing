@@ -2,76 +2,220 @@
 
 {% block content %}
 <form action="/price" method="post" id="pricing-form">
-    <div class="form-group">
-        <label for="business_url">Client Business URL</label>
-        <input type="text" id="business_url" name="business_url"
-            placeholder="https://example.com or example.com"
-            value="{{ prefill.get('business_url', '') }}"
-            required>
-        <span class="field-hint">We'll research the business automatically</span>
-    </div>
 
-    <div class="form-group">
-        <label for="service_description">Your Service</label>
-        <textarea id="service_description" name="service_description" rows="4"
-            placeholder="Describe the service you are offering. Be specific about scope, deliverables, and duration."
-            required>{{ prefill.get('service_description', '') }}</textarea>
-    </div>
-
-    <div class="form-group">
-        <label for="constraints">Constraints (optional)</label>
-        <textarea id="constraints" name="constraints" rows="2"
-            placeholder="Timeline, budget caps, technical constraints, delivery requirements.">{{ prefill.get('constraints', '') }}</textarea>
-    </div>
-
-    <div class="form-row form-row-3">
-        <div class="form-group">
-            <label for="budget_hint">Budget Hint (optional)</label>
-            <input type="number" id="budget_hint" name="budget_hint" step="0.01" min="0"
-                placeholder="Client's budget signal"
-                value="{{ prefill.get('budget_hint', '') }}">
-        </div>
-
-        <div class="form-group">
-            <label for="currency">Currency</label>
-            <select id="currency" name="currency">
-                {% for c in currencies %}
-                <option value="{{ c }}" {% if prefill.get('currency') == c %}selected{% endif %}>{{ c }}</option>
-                {% endfor %}
-            </select>
+    <!-- Section 1: Business & Service -->
+    <div class="form-section">
+        <h3 class="section-title">Business & Service</h3>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="business_id">Client Business</label>
+                <select id="business_id" name="business_id">
+                    <option value="">-- Select or leave blank --</option>
+                    {% for biz in businesses %}
+                    <option value="{{ biz.id }}" {% if prefill.get('business_id') == biz.id %}selected{% endif %}>{{ biz.name }}</option>
+                    {% endfor %}
+                </select>
+                <span class="field-hint"><a href="/businesses/new" class="hint-link">+ New business</a></span>
+            </div>
+            <div class="form-group">
+                <label for="service_template_id">Service Template</label>
+                <select id="service_template_id" name="service_template_id">
+                    <option value="">-- Custom service --</option>
+                    {% for svc in services %}
+                    <option value="{{ svc.id }}" {% if prefill.get('service_template_id') == svc.id %}selected{% endif %}>{{ svc.name }}</option>
+                    {% endfor %}
+                </select>
+                <span class="field-hint"><a href="/services/new" class="hint-link">+ New template</a></span>
+            </div>
         </div>
         <div class="form-group">
-            <label for="model_tier">Model</label>
-            <select id="model_tier" name="model_tier">
-                {% for tier in model_tiers %}
-                <option value="{{ tier.id }}" {% if tier.id == current_model %}selected{% endif %}>{{ tier.label }}</option>
-                {% endfor %}
-            </select>
+            <label for="business_url">Client Business URL</label>
+            <input type="text" id="business_url" name="business_url"
+                placeholder="https://example.com"
+                value="{{ prefill.get('business_url', '') }}"
+                required>
+            <span class="field-hint">We'll research the business automatically</span>
+        </div>
+        <div class="form-group">
+            <label for="service_description">Service Description</label>
+            <textarea id="service_description" name="service_description" rows="3"
+                placeholder="Describe the service you are offering. Scope, deliverables, duration."
+                required>{{ prefill.get('service_description', '') }}</textarea>
         </div>
     </div>
 
-    <div class="form-group">
-        <label for="insights">Competitive Intelligence (optional)</label>
-        <textarea id="insights" name="insights" rows="4"
-            placeholder="What do you know about this client? Examples:&#10;- They currently use [vendor] and pay $X/month&#10;- Owner mentioned budget is around $Y&#10;- They said our competitor quoted $Z&#10;- Owner cares most about [speed/quality/price]&#10;- Their current solution lacks [feature you offer]">{{ prefill.get('insights', '') }}</textarea>
-        <span class="field-hint">Any intel that helps price smarter: current vendors, WTP signals, preferences, pain points</span>
+    <!-- Section 2: Your Costs -->
+    <div class="form-section">
+        <h3 class="section-title">Your Costs</h3>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="our_hours_estimate">Estimated Hours</label>
+                <input type="number" id="our_hours_estimate" name="our_hours_estimate" step="0.5" min="0"
+                    placeholder="Total hours to deliver"
+                    value="{{ prefill.get('our_hours_estimate', '') }}">
+            </div>
+            <div class="form-group">
+                <label for="our_hourly_rate">Your Hourly Rate</label>
+                <input type="number" id="our_hourly_rate" name="our_hourly_rate" step="0.01" min="0"
+                    placeholder="Your opportunity cost per hour"
+                    value="{{ prefill.get('our_hourly_rate', '') }}">
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Delivery Speed</label>
+            <div class="radio-row">
+                <label class="radio-label">
+                    <input type="radio" name="delivery_speed" value="normal" checked> Normal
+                </label>
+                <label class="radio-label">
+                    <input type="radio" name="delivery_speed" value="fast"> Fast (urgency premium)
+                </label>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="normal_delivery_days">Normal Delivery (days)</label>
+                <input type="number" id="normal_delivery_days" name="normal_delivery_days" min="1"
+                    placeholder="e.g. 60"
+                    value="{{ prefill.get('normal_delivery_days', '') }}">
+            </div>
+            <div class="form-group">
+                <label for="fast_delivery_days">Fast Delivery (days)</label>
+                <input type="number" id="fast_delivery_days" name="fast_delivery_days" min="1"
+                    placeholder="e.g. 30"
+                    value="{{ prefill.get('fast_delivery_days', '') }}">
+            </div>
+        </div>
     </div>
 
-    <button type="submit" id="submit-btn">Get Pricing Recommendation</button>
+    <!-- Section 3: Competitor Intelligence -->
+    <div class="form-section">
+        <h3 class="section-title">Competitor Intelligence</h3>
+        <div class="form-group">
+            <label class="toggle-label">
+                <input type="checkbox" id="has_competitor" name="has_competitor"
+                    onchange="document.getElementById('competitor-details').style.display = this.checked ? 'block' : 'none'">
+                Does the client currently use a similar service?
+            </label>
+        </div>
+        <div id="competitor-details" style="display: none;">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="competitor_url">Competitor Service URL</label>
+                    <input type="text" id="competitor_url" name="competitor_url"
+                        placeholder="https://competitor.com">
+                    <span class="field-hint">We'll scrape and compare features</span>
+                </div>
+                <div class="form-group">
+                    <label for="competitor_monthly_price">Monthly Price They Pay</label>
+                    <input type="number" id="competitor_monthly_price" name="competitor_monthly_price"
+                        step="0.01" min="0" placeholder="e.g. 500">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="competitor_likes">What They Like About It</label>
+                    <textarea id="competitor_likes" name="competitor_likes" rows="2"
+                        placeholder="Features, reliability, support..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="competitor_dislikes">What's Missing / Dislikes</label>
+                    <textarea id="competitor_dislikes" name="competitor_dislikes" rows="2"
+                        placeholder="Pain points, missing features, complaints..."></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 4: Client Signals -->
+    <div class="form-section">
+        <h3 class="section-title">Client Signals</h3>
+        <div class="form-group">
+            <label for="wtp_signals">Willingness to Pay Signals</label>
+            <textarea id="wtp_signals" name="wtp_signals" rows="2"
+                placeholder="What has the client said about budget? Any reactions to prices mentioned?"></textarea>
+        </div>
+        <div class="form-group">
+            <label>Owner Priorities</label>
+            <div class="checkbox-row">
+                <label class="checkbox-label"><input type="checkbox" name="owner_priorities" value="speed"> Speed</label>
+                <label class="checkbox-label"><input type="checkbox" name="owner_priorities" value="quality"> Quality</label>
+                <label class="checkbox-label"><input type="checkbox" name="owner_priorities" value="price"> Low Price</label>
+                <label class="checkbox-label"><input type="checkbox" name="owner_priorities" value="relationship"> Relationship</label>
+                <label class="checkbox-label"><input type="checkbox" name="owner_priorities" value="reliability"> Reliability</label>
+                <label class="checkbox-label"><input type="checkbox" name="owner_priorities" value="innovation"> Innovation</label>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="deal_breakers">Deal Breakers</label>
+                <textarea id="deal_breakers" name="deal_breakers" rows="2"
+                    placeholder="What would make them walk away?"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="budget_hint">Budget Hint</label>
+                <input type="number" id="budget_hint" name="budget_hint" step="0.01" min="0"
+                    placeholder="Amount they mentioned"
+                    value="{{ prefill.get('budget_hint', '') }}">
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 5: Additional -->
+    <div class="form-section">
+        <h3 class="section-title">Additional Context</h3>
+        <div class="form-group">
+            <label for="constraints">Constraints</label>
+            <textarea id="constraints" name="constraints" rows="2"
+                placeholder="Timeline, budget caps, technical constraints, delivery requirements">{{ prefill.get('constraints', '') }}</textarea>
+        </div>
+        <div class="form-group">
+            <label for="additional_notes">Additional Notes</label>
+            <textarea id="additional_notes" name="additional_notes" rows="2"
+                placeholder="Anything else that could help price this deal"></textarea>
+        </div>
+        <input type="hidden" name="insights" value="{{ prefill.get('insights', '') }}">
+    </div>
+
+    <!-- Bottom: Settings + Submit -->
+    <div class="form-section form-section-bottom">
+        <div class="form-row form-row-3">
+            <div class="form-group">
+                <label for="currency">Currency</label>
+                <select id="currency" name="currency">
+                    {% for c in currencies %}
+                    <option value="{{ c }}" {% if prefill.get('currency') == c %}selected{% endif %}>{{ c }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="model_tier">Model</label>
+                <select id="model_tier" name="model_tier">
+                    {% for tier in model_tiers %}
+                    <option value="{{ tier.id }}" {% if tier.id == current_model %}selected{% endif %}>{{ tier.label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group" style="display: flex; align-items: flex-end;">
+                <button type="submit" id="submit-btn">Get Pricing</button>
+            </div>
+        </div>
+    </div>
+
     <div id="loading" class="loading hidden">
         <div class="spinner"></div>
-        <p>Working on your pricing...</p>
+        <p>Running pricing swarm...</p>
         <ul>
-            <li>Research Agent - scraping and analyzing business</li>
-            <li>Cost Agent - estimating delivery costs</li>
-            <li>Market Agent - checking market rates</li>
-            <li>Value Agent - estimating client ROI</li>
-            <li>Risk Agent - assessing delivery risk</li>
-            <li>Packaging Agent - recommending pricing structure</li>
-            <li>Negotiation Agent - building negotiation playbook</li>
-            <li>Discovery Agent - generating intel questions</li>
+            <li>Research Agent</li>
+            <li>Cost Agent</li>
+            <li>Market Agent</li>
+            <li>Value Agent</li>
+            <li>Risk Agent</li>
+            <li>Packaging Agent</li>
+            <li>Negotiation Agent</li>
+            <li>Discovery Agent</li>
         </ul>
-        <p class="loading-note">This typically takes 20-40 seconds.</p>
+        <p class="loading-note">Typically 30-90 seconds</p>
     </div>
 </form>
 

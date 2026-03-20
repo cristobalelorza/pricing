@@ -6,7 +6,7 @@ from urllib.parse import urlparse
 import requests
 from bs4 import BeautifulSoup
 
-from app.agents.base import DEFAULT_MODEL, extract_json, get_client
+from app.agents.base import FREE_MODELS, extract_json, get_client, next_free_model
 
 logger = logging.getLogger(__name__)
 
@@ -90,7 +90,6 @@ def _scrape_url(url: str) -> str | None:
 
 class ResearcherAgent:
     name = "Research Agent"
-    model = DEFAULT_MODEL
 
     async def research(self, business_url: str) -> str:
         """Scrape a business URL and produce a client profile via LLM."""
@@ -101,7 +100,6 @@ class ResearcherAgent:
         client = get_client()
 
         if scraped:
-            # Got content -- have LLM analyze it
             domain = urlparse(
                 business_url if "://" in business_url else f"https://{business_url}"
             ).netloc
@@ -112,23 +110,28 @@ class ResearcherAgent:
             )
             system = RESEARCH_SYSTEM_PROMPT
         else:
-            # Scrape failed -- fall back to LLM knowledge
             logger.info("Scrape failed, falling back to LLM knowledge for %s", business_url)
             user_msg = f"Business URL: {business_url}\nThe website could not be scraped. Use your knowledge to estimate a client profile."
             system = FALLBACK_SYSTEM_PROMPT
 
-        try:
-            response = await client.chat.completions.create(
-                model=self.model,
-                max_tokens=1024,
-                messages=[
-                    {"role": "system", "content": system},
-                    {"role": "user", "content": user_msg},
-                ],
-            )
-            result = response.choices[0].message.content.strip()
-            logger.info("Research complete for %s (%d chars)", business_url, len(result))
-            return result
-        except Exception as e:
-            logger.error("Research LLM call failed: %s", e)
-            return f"Research failed for {business_url}. Pricing agents should work with limited context."
+        # Try models with fallback chain
+        for model_id in FREE_MODELS:
+            try:
+                response = await client.chat.completions.create(
+                    model=model_id,
+                    max_tokens=1024,
+                    messages=[
+                        {"role": "system", "content": system},
+                        {"role": "user", "content": user_msg},
+                    ],
+                )
+                text = response.choices[0].message.content
+                if text and text.strip():
+                    logger.info("Research complete for %s (%d chars, model: %s)", business_url, len(text.strip()), model_id)
+                    return text.strip()
+                logger.warning("Research: empty from %s, trying next", model_id)
+            except Exception as e:
+                logger.warning("Research: %s failed (%s), trying next", model_id, e)
+                continue
+
+        return f"Research failed for {business_url}. Pricing agents should work with limited context."

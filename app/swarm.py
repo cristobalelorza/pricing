@@ -49,8 +49,8 @@ async def run_swarm_streaming(
 
     async def _run_agent(agent, deal, name):
         nonlocal _agent_idx
-        # Small stagger (1s each) so models rotate before requests fire
-        delay = _agent_idx * 1.0
+        # Small stagger so rotation assigns different models before requests fire
+        delay = _agent_idx * 0.5
         _agent_idx += 1
         if delay > 0:
             await asyncio.sleep(delay)

@@ -30,18 +30,28 @@ FREE_MODELS = [m for m in FREE_MODELS if m]
 
 DEFAULT_MODEL = FREE_MODELS[0] if FREE_MODELS else "arcee-ai/trinity-large-preview:free"
 
-# Round-robin counter for distributing agents across free models.
-# Each agent call picks the next model in rotation, so requests spread
-# evenly across providers instead of all hitting free_main.
+# Weighted rotation: nemotron (reliable) gets more share than stepfun (fast but flaky).
+# Pattern: nemotron, stepfun, nemotron, nemotron, stepfun -- roughly 60/40.
+# Arcee is last-resort fallback only.
 _rotation_idx = 0
+
+def _build_weighted_rotation() -> list[str]:
+    """Build a weighted rotation favoring the more reliable model."""
+    if len(FREE_MODELS) < 2:
+        return FREE_MODELS
+    main, fallback1 = FREE_MODELS[0], FREE_MODELS[1]
+    # fallback1 (nemotron) is more reliable, main (stepfun) is faster but flaky
+    return [fallback1, main, fallback1, fallback1, main]
+
+_ROTATION_SEQUENCE = _build_weighted_rotation()
 
 
 def next_free_model() -> str:
-    """Return the next free model in round-robin rotation."""
+    """Return the next free model in weighted rotation."""
     global _rotation_idx
-    # Rotate across main and first fallback primarily (skip worst unless needed)
-    primary_models = FREE_MODELS[:2] if len(FREE_MODELS) >= 2 else FREE_MODELS
-    model = primary_models[_rotation_idx % len(primary_models)]
+    if not _ROTATION_SEQUENCE:
+        return DEFAULT_MODEL
+    model = _ROTATION_SEQUENCE[_rotation_idx % len(_ROTATION_SEQUENCE)]
     _rotation_idx += 1
     return model
 
@@ -191,12 +201,77 @@ class BaseAgent(ABC):
             parts.append(
                 f"## Budget Signal\nClient hinted at a budget of {deal.budget_hint:,.2f} {deal.currency.value}"
             )
-        if deal.insights:
+
+        # Structured insights (compartmentalized)
+        si = deal.structured_insights
+        if si:
+            intel_parts = []
+
+            # Our cost basis
+            if si.our_hours_estimate or si.our_hourly_rate:
+                cost_lines = []
+                if si.our_hours_estimate:
+                    cost_lines.append(f"- Estimated hours to deliver: {si.our_hours_estimate}")
+                if si.our_hourly_rate:
+                    cost_lines.append(f"- Our hourly rate (opportunity cost): {si.our_hourly_rate} {deal.currency.value}/hr")
+                intel_parts.append("### Our Cost Basis\n" + "\n".join(cost_lines))
+
+            # Delivery speed
+            if si.delivery_speed == "fast" and si.fast_delivery_days:
+                intel_parts.append(
+                    f"### Delivery Timeline\n"
+                    f"- Speed: FAST (urgent)\n"
+                    f"- Fast delivery: {si.fast_delivery_days} days\n"
+                    f"- Normal delivery would be: {si.normal_delivery_days or 'not specified'} days\n"
+                    f"- Urgency premium should be applied."
+                )
+            elif si.normal_delivery_days:
+                intel_parts.append(
+                    f"### Delivery Timeline\n"
+                    f"- Speed: Normal\n"
+                    f"- Timeline: {si.normal_delivery_days} days"
+                )
+
+            # Competitor intelligence
+            if si.has_competitor:
+                comp_lines = ["### Competitor Service"]
+                if si.competitor_url:
+                    comp_lines.append(f"- Competitor URL: {si.competitor_url}")
+                if si.competitor_monthly_price is not None:
+                    comp_lines.append(f"- Client pays competitor: {si.competitor_monthly_price:,.2f} {deal.currency.value}/month")
+                if si.competitor_likes:
+                    comp_lines.append(f"- What client likes about competitor: {si.competitor_likes}")
+                if si.competitor_dislikes:
+                    comp_lines.append(f"- What client dislikes/missing: {si.competitor_dislikes}")
+                if si.competitor_features:
+                    comp_lines.append(f"- Competitor features (scraped): {si.competitor_features[:500]}")
+                intel_parts.append("\n".join(comp_lines))
+
+            # Client signals
+            signal_lines = []
+            if si.wtp_signals:
+                signal_lines.append(f"- WTP signals: {si.wtp_signals}")
+            if si.owner_priorities:
+                signal_lines.append(f"- Owner priorities: {', '.join(si.owner_priorities)}")
+            if si.deal_breakers:
+                signal_lines.append(f"- Deal breakers: {si.deal_breakers}")
+            if signal_lines:
+                intel_parts.append("### Client Signals\n" + "\n".join(signal_lines))
+
+            if si.additional_notes:
+                intel_parts.append(f"### Additional Notes\n{si.additional_notes}")
+
+            if intel_parts:
+                parts.append("## Competitive Intelligence\n" + "\n\n".join(intel_parts))
+
+        # Legacy plain-text insights (backward compat)
+        elif deal.insights:
             parts.append(
                 f"## Competitive Intelligence\n"
-                f"The following insights are known about this client. Use them to sharpen your analysis.\n\n"
+                f"The following insights are known about this client.\n\n"
                 f"{deal.insights}"
             )
+
         parts.append(f"## Currency\nProvide all prices in {deal.currency.value}.")
         return "\n\n".join(parts)
 

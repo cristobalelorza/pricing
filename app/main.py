@@ -18,9 +18,22 @@ from sse_starlette.sse import EventSourceResponse
 from app.agents import ResearcherAgent
 from app.agents.base import DEFAULT_MODEL, FREE_MODELS, MODEL_TIERS, PREMIUM_MODEL
 from app.models import (
+    Business,
     Currency,
     DealInput,
     PricingResult,
+    ServiceTemplate,
+    StructuredInsights,
+)
+from app.storage import (
+    add_pricing_run_to_business,
+    get_business,
+    get_service,
+    list_businesses,
+    list_services,
+    new_id,
+    save_business,
+    save_service,
 )
 from app.swarm import run_swarm_streaming
 
@@ -69,13 +82,22 @@ def save_result(deal: DealInput, result) -> Path:
 
 
 
+def _form_ctx(request, prefill=None):
+    """Common context for the pricing form."""
+    return {
+        "request": request,
+        "currencies": [c.value for c in Currency],
+        "prefill": prefill or {},
+        "model_tiers": _MODEL_TIER_OPTIONS,
+        "current_model": _current_model_tier,
+        "businesses": list_businesses(),
+        "services": list_services(),
+    }
+
+
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request):
-    return templates.TemplateResponse(
-        "index.html",
-        {"request": request, "currencies": [c.value for c in Currency], "prefill": {},
-         "model_tiers": _MODEL_TIER_OPTIONS, "current_model": _current_model_tier},
-    )
+    return templates.TemplateResponse("index.html", _form_ctx(request))
 
 
 @app.get("/rerun", response_class=HTMLResponse)
@@ -88,7 +110,6 @@ async def rerun(
     currency: str = "USD",
     insights: str = "",
 ):
-    """Pre-fill the form with values from a previous run."""
     prefill = {
         "business_url": url,
         "service_description": service,
@@ -97,11 +118,7 @@ async def rerun(
         "currency": currency,
         "insights": insights,
     }
-    return templates.TemplateResponse(
-        "index.html",
-        {"request": request, "currencies": [c.value for c in Currency], "prefill": prefill,
-         "model_tiers": _MODEL_TIER_OPTIONS, "current_model": _current_model_tier},
-    )
+    return templates.TemplateResponse("index.html", _form_ctx(request, prefill))
 
 
 # In-memory store for pending pricing jobs
@@ -117,17 +134,50 @@ async def price(
     budget_hint: float | None = Form(None),
     currency: str = Form("USD"),
     insights: str = Form(""),
-    model_tier: str = Form("free"),
+    model_tier: str = Form("premium"),
+    business_id: str = Form(""),
+    service_template_id: str = Form(""),
+    # Structured insights fields
+    has_competitor: str = Form(""),
+    competitor_url: str = Form(""),
+    competitor_monthly_price: float | None = Form(None),
+    competitor_likes: str = Form(""),
+    competitor_dislikes: str = Form(""),
+    our_hours_estimate: float | None = Form(None),
+    our_hourly_rate: float | None = Form(None),
+    delivery_speed: str = Form("normal"),
+    normal_delivery_days: int | None = Form(None),
+    fast_delivery_days: int | None = Form(None),
+    wtp_signals: str = Form(""),
+    owner_priorities: list[str] = Form([]),
+    deal_breakers: str = Form(""),
+    additional_notes: str = Form(""),
 ):
-    # Apply model selection for this run
-    # "premium" = use premium for Arbiter+Negotiation, free for rest (default)
-    # "free" = use free models for everything
+    # Apply model selection
     import app.agents.base as base_mod
     import app.agents.arbiter as arbiter_mod
     if model_tier == "free":
         arbiter_mod.ArbiterAgent.model = base_mod.DEFAULT_MODEL
     else:
         arbiter_mod.ArbiterAgent.model = base_mod.PREMIUM_MODEL
+
+    # Build structured insights
+    si = StructuredInsights(
+        has_competitor=has_competitor == "on",
+        competitor_url=competitor_url,
+        competitor_monthly_price=competitor_monthly_price,
+        competitor_likes=competitor_likes,
+        competitor_dislikes=competitor_dislikes,
+        our_hours_estimate=our_hours_estimate,
+        our_hourly_rate=our_hourly_rate,
+        delivery_speed=delivery_speed,
+        normal_delivery_days=normal_delivery_days,
+        fast_delivery_days=fast_delivery_days,
+        wtp_signals=wtp_signals,
+        owner_priorities=[p for p in owner_priorities if p],
+        deal_breakers=deal_breakers,
+        additional_notes=additional_notes,
+    )
 
     deal = DealInput(
         service_description=service_description,
@@ -136,6 +186,9 @@ async def price(
         budget_hint=budget_hint if budget_hint else None,
         currency=Currency(currency),
         insights=insights,
+        structured_insights=si,
+        business_id=business_id,
+        service_template_id=service_template_id,
     )
 
     # Create a job and return the progress page immediately
@@ -157,11 +210,36 @@ async def _run_job(job_id: str):
     deal = job["deal"]
 
     try:
-        # Step 1: Research
+        # Step 1: Research client
         job["status"] = "researching"
         researcher = ResearcherAgent()
         client_context = await researcher.research(deal.business_url)
         deal = deal.model_copy(update={"client_context": client_context})
+
+        # Step 1b: Scrape competitor if provided
+        si = deal.structured_insights
+        if si and si.has_competitor and si.competitor_url and not si.competitor_features:
+            from app.agents.researcher import _scrape_url
+            from app.agents.base import get_client, FREE_MODELS
+            scraped = _scrape_url(si.competitor_url)
+            if scraped:
+                client = get_client()
+                try:
+                    resp = await client.chat.completions.create(
+                        model=FREE_MODELS[0] if FREE_MODELS else "arcee-ai/trinity-large-preview:free",
+                        max_tokens=1024,
+                        messages=[
+                            {"role": "system", "content": "Compare the features of a competitor service with our service. List what the competitor offers, what we offer that they don't, and key differences. Be concise."},
+                            {"role": "user", "content": f"## Our service\n{deal.service_description}\n\n## Competitor website content\n{scraped[:3000]}"},
+                        ],
+                    )
+                    comp_text = resp.choices[0].message.content
+                    if comp_text:
+                        si = si.model_copy(update={"competitor_features": comp_text.strip()})
+                        deal = deal.model_copy(update={"structured_insights": si})
+                except Exception as e:
+                    logger.warning("Competitor scrape LLM failed: %s", e)
+
         job["deal"] = deal
 
         # Step 2: Run swarm with status callbacks
@@ -170,8 +248,10 @@ async def _run_job(job_id: str):
 
         result = await run_swarm_streaming(deal, on_status)
 
-        # Step 3: Persist
+        # Step 3: Persist and link to business
         result_path = save_result(deal, result)
+        if deal.business_id:
+            add_pricing_run_to_business(deal.business_id, result_path.name)
 
         job["result"] = result
         job["result_filename"] = result_path.name
@@ -352,3 +432,187 @@ async def compare(request: Request, a: str = "", b: str = ""):
             "result_b": result_b,
         },
     )
+
+
+@app.get("/ab-test", response_class=HTMLResponse)
+async def ab_test_form(request: Request):
+    """A/B test form: run the same deal with premium vs free models."""
+    return templates.TemplateResponse(
+        "ab_test.html",
+        {"request": request, "currencies": [c.value for c in Currency],
+         "model_tiers": _MODEL_TIER_OPTIONS, "status": None},
+    )
+
+
+@app.post("/ab-test", response_class=HTMLResponse)
+async def ab_test_run(
+    request: Request,
+    service_description: str = Form(...),
+    business_url: str = Form(...),
+    constraints: str = Form(""),
+    budget_hint: float | None = Form(None),
+    currency: str = Form("USD"),
+    insights: str = Form(""),
+):
+    """Run the same deal with premium and free models, then redirect to compare."""
+    import app.agents.base as base_mod
+    import app.agents.arbiter as arbiter_mod
+
+    # Research once (shared)
+    researcher = ResearcherAgent()
+    client_context = await researcher.research(business_url)
+
+    deal = DealInput(
+        service_description=service_description,
+        business_url=business_url,
+        client_context=client_context,
+        constraints=constraints,
+        budget_hint=budget_hint if budget_hint else None,
+        currency=Currency(currency),
+        insights=insights,
+    )
+
+    results_files = []
+
+    for label, use_premium in [("premium", True), ("free", False)]:
+        # Set model for this run
+        if use_premium:
+            arbiter_mod.ArbiterAgent.model = base_mod.PREMIUM_MODEL
+        else:
+            arbiter_mod.ArbiterAgent.model = base_mod.DEFAULT_MODEL
+
+        try:
+            result = await run_swarm_streaming(deal)
+            path = save_result(deal, result)
+            results_files.append(path.name)
+        except Exception as e:
+            logger.exception("A/B test %s run failed", label)
+            results_files.append(None)
+
+    # Restore default
+    arbiter_mod.ArbiterAgent.model = base_mod.PREMIUM_MODEL
+
+    if results_files[0] and results_files[1]:
+        from starlette.responses import RedirectResponse
+        return RedirectResponse(
+            url=f"/compare?a={results_files[0]}&b={results_files[1]}",
+            status_code=303,
+        )
+
+    return templates.TemplateResponse(
+        "error.html",
+        {"request": request, "error": "One or both A/B test runs failed.", "deal": deal},
+    )
+
+
+# === Business Management ===
+
+@app.get("/businesses", response_class=HTMLResponse)
+async def businesses_list(request: Request):
+    return templates.TemplateResponse(
+        "businesses.html",
+        {"request": request, "businesses": list_businesses()},
+    )
+
+
+@app.get("/businesses/new", response_class=HTMLResponse)
+async def business_new(request: Request):
+    return templates.TemplateResponse(
+        "business_form.html",
+        {"request": request, "biz": None},
+    )
+
+
+@app.post("/businesses", response_class=HTMLResponse)
+async def business_create(
+    request: Request,
+    name: str = Form(...),
+    url: str = Form(...),
+    industry: str = Form(""),
+    notes: str = Form(""),
+):
+    from starlette.responses import RedirectResponse
+    biz = Business(id=new_id(), name=name, url=url, industry=industry, notes=notes)
+    save_business(biz)
+    return RedirectResponse(url=f"/businesses/{biz.id}", status_code=303)
+
+
+@app.get("/businesses/{biz_id}", response_class=HTMLResponse)
+async def business_detail(request: Request, biz_id: str):
+    biz = get_business(biz_id)
+    if not biz:
+        return templates.TemplateResponse(
+            "error.html",
+            {"request": request, "error": "Business not found.", "deal": DealInput(service_description="", business_url="")},
+        )
+    from app.storage import get_business_results
+    runs = get_business_results(biz_id)
+    return templates.TemplateResponse(
+        "business_detail.html",
+        {"request": request, "biz": biz, "runs": runs, "services": list_services()},
+    )
+
+
+@app.get("/businesses/{biz_id}/price", response_class=HTMLResponse)
+async def business_price(request: Request, biz_id: str, svc: str = ""):
+    biz = get_business(biz_id)
+    if not biz:
+        return templates.TemplateResponse(
+            "error.html",
+            {"request": request, "error": "Business not found.", "deal": DealInput(service_description="", business_url="")},
+        )
+    prefill = {"business_url": biz.url, "business_id": biz_id}
+    svc_obj = get_service(svc) if svc else None
+    if svc_obj:
+        prefill["service_description"] = svc_obj.description
+        prefill["constraints"] = svc_obj.default_constraints
+        prefill["service_template_id"] = svc_obj.id
+        prefill["our_hours_estimate"] = str(svc_obj.estimated_hours or "")
+        prefill["our_hourly_rate"] = str(svc_obj.hourly_rate or "")
+        prefill["normal_delivery_days"] = str(svc_obj.normal_delivery_days or "")
+        prefill["fast_delivery_days"] = str(svc_obj.fast_delivery_days or "")
+    return templates.TemplateResponse("index.html", _form_ctx(request, prefill))
+
+
+# === Service Templates ===
+
+@app.get("/services", response_class=HTMLResponse)
+async def services_list(request: Request):
+    return templates.TemplateResponse(
+        "services.html",
+        {"request": request, "services": list_services()},
+    )
+
+
+@app.get("/services/new", response_class=HTMLResponse)
+async def service_new(request: Request):
+    return templates.TemplateResponse(
+        "service_form.html",
+        {"request": request, "svc": None},
+    )
+
+
+@app.post("/services", response_class=HTMLResponse)
+async def service_create(
+    request: Request,
+    name: str = Form(...),
+    description: str = Form(...),
+    default_constraints: str = Form(""),
+    estimated_hours: float | None = Form(None),
+    hourly_rate: float | None = Form(None),
+    normal_delivery_days: int | None = Form(None),
+    fast_delivery_days: int | None = Form(None),
+):
+    from starlette.responses import RedirectResponse
+    svc = ServiceTemplate(
+        id=new_id(),
+        name=name,
+        description=description,
+        default_constraints=default_constraints,
+        estimated_hours=estimated_hours,
+        hourly_rate=hourly_rate,
+        normal_delivery_days=normal_delivery_days,
+        fast_delivery_days=fast_delivery_days,
+    )
+    save_service(svc)
+    return RedirectResponse(url="/services", status_code=303)
