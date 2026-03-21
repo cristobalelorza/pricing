@@ -3,43 +3,202 @@
 <head>
 <meta charset="UTF-8">
 <style>
-    @page { size: A4; margin: 2cm; }
-    body { font-family: Helvetica, Arial, sans-serif; color: #222; font-size: 11pt; line-height: 1.5; }
-    h1 { font-size: 20pt; color: #1a1a2e; margin-bottom: 0.3em; }
-    h2 { font-size: 14pt; color: #16213e; margin-top: 1.2em; border-bottom: 1px solid #ddd; padding-bottom: 0.3em; }
-    h3 { font-size: 11pt; color: #444; margin-top: 0.8em; }
-    .subtitle { color: #666; font-size: 10pt; margin-bottom: 1.5em; }
-    .price-table { width: 100%; border-collapse: collapse; margin: 1em 0; }
-    .price-table th, .price-table td { padding: 8px 12px; text-align: left; border: 1px solid #ddd; }
-    .price-table th { background: #f5f5f5; font-weight: 600; }
-    .target-row { background: #e8f0fe; font-weight: 600; }
-    ul, ol { margin: 0.5em 0; padding-left: 1.5em; }
-    li { margin-bottom: 0.3em; }
-    .section { margin-bottom: 1em; }
-    .confidence { color: #666; font-style: italic; }
-    .footer { margin-top: 2em; padding-top: 1em; border-top: 1px solid #ddd; color: #999; font-size: 9pt; text-align: center; }
-    .neg-table { width: 100%; border-collapse: collapse; margin: 0.5em 0; }
-    .neg-table td { padding: 6px 10px; border: 1px solid #ddd; }
-    .neg-table td:first-child { font-weight: 600; width: 40%; background: #f9f9f9; }
+    @page {
+        size: A4;
+        margin: 2.5cm 2cm;
+        @bottom-center { content: counter(page) " / " counter(pages); font-size: 8pt; color: #999; }
+    }
+    body {
+        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        color: #2d2d2d;
+        font-size: 10pt;
+        line-height: 1.6;
+    }
+
+    /* Header */
+    .report-header {
+        border-bottom: 3px solid #1a365d;
+        padding-bottom: 1.2em;
+        margin-bottom: 2em;
+    }
+    .report-header h1 {
+        font-size: 22pt;
+        color: #1a365d;
+        margin: 0 0 0.2em 0;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+    }
+    .report-meta {
+        color: #666;
+        font-size: 9pt;
+    }
+    .report-meta span { margin-right: 1.5em; }
+
+    /* Section headers */
+    h2 {
+        font-size: 13pt;
+        color: #1a365d;
+        border-bottom: 1px solid #e2e8f0;
+        padding-bottom: 0.3em;
+        margin: 1.8em 0 0.8em 0;
+        letter-spacing: 0.02em;
+    }
+    h3 {
+        font-size: 10pt;
+        color: #4a5568;
+        margin: 1.2em 0 0.4em 0;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-weight: 600;
+    }
+
+    /* Price table */
+    .price-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 0.8em 0 1.2em 0;
+    }
+    .price-table th {
+        background: #f7fafc;
+        padding: 0.6em 1em;
+        text-align: left;
+        font-size: 8pt;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: #718096;
+        border-bottom: 2px solid #e2e8f0;
+    }
+    .price-table td {
+        padding: 0.7em 1em;
+        border-bottom: 1px solid #edf2f7;
+        font-size: 10pt;
+    }
+    .price-table .target-row {
+        background: #ebf4ff;
+        font-weight: 600;
+    }
+    .price-table .target-row td {
+        color: #2b6cb0;
+        border-bottom: 2px solid #bee3f8;
+    }
+    .price-amount {
+        font-family: 'Helvetica Neue', monospace;
+        font-weight: 600;
+        font-size: 11pt;
+    }
+
+    /* Negotiation table */
+    .neg-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 0.6em 0;
+    }
+    .neg-table td {
+        padding: 0.5em 0.8em;
+        border-bottom: 1px solid #edf2f7;
+        font-size: 10pt;
+    }
+    .neg-table td:first-child {
+        font-weight: 600;
+        color: #4a5568;
+        width: 35%;
+    }
+
+    /* Lists */
+    ul, ol { margin: 0.4em 0 0.8em 0; padding-left: 1.5em; }
+    li { margin-bottom: 0.3em; line-height: 1.5; }
+
+    /* Key-value lines */
+    .kv { margin: 0.3em 0; }
+    .kv strong { color: #4a5568; }
+
+    /* Structure box */
+    .structure-box {
+        background: #f7fafc;
+        border: 1px solid #e2e8f0;
+        border-left: 4px solid #2b6cb0;
+        padding: 0.8em 1em;
+        margin: 0.8em 0;
+        border-radius: 4px;
+    }
+    .structure-box strong { color: #2b6cb0; }
+
+    /* Confidence badge */
+    .confidence {
+        display: inline-block;
+        background: #edf2f7;
+        color: #4a5568;
+        padding: 0.2em 0.8em;
+        border-radius: 12px;
+        font-size: 9pt;
+        font-weight: 600;
+    }
+
+    /* Validation */
+    .validation-pass { color: #276749; }
+    .validation-fail { color: #c53030; }
+
+    /* Page break */
+    .page-break { page-break-before: always; }
+
+    /* Footer */
+    .report-footer {
+        margin-top: 3em;
+        padding-top: 1em;
+        border-top: 1px solid #e2e8f0;
+        color: #a0aec0;
+        font-size: 8pt;
+        text-align: center;
+    }
 </style>
 </head>
 <body>
-    <h1>Pricing Recommendation</h1>
-    <p class="subtitle">{{ deal.business_url }} | {{ deal.service_description[:100] }}</p>
 
+    <!-- Header -->
+    <div class="report-header">
+        <h1>Pricing Recommendation</h1>
+        <div class="report-meta">
+            <span>Client: {{ deal.business_url }}</span>
+            <span>Date: {{ timestamp[:10] if timestamp else '' }}</span>
+            <span class="confidence">Confidence: {{ "{:.0%}".format(result.confidence) }}</span>
+        </div>
+        <p style="color: #4a5568; margin-top: 0.5em; font-size: 9.5pt;">{{ deal.service_description[:150] }}</p>
+    </div>
+
+    <!-- Price Range -->
     <h2>Price Range</h2>
     <table class="price-table">
-        <tr><th>Level</th><th>Amount</th><th>Description</th></tr>
-        <tr><td>Floor</td><td>{{ "{:,.0f}".format(result.price_floor) }} {{ result.currency.value }}</td><td>Minimum viable price</td></tr>
-        <tr class="target-row"><td>Target</td><td>{{ "{:,.0f}".format(result.price_target) }} {{ result.currency.value }}</td><td>Recommended price</td></tr>
-        <tr><td>Stretch</td><td>{{ "{:,.0f}".format(result.price_stretch) }} {{ result.currency.value }}</td><td>Premium positioning</td></tr>
+        <thead>
+            <tr><th>Level</th><th>Amount</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Floor</td>
+                <td class="price-amount">{{ "{:,.0f}".format(result.price_floor) }} {{ result.currency.value }}</td>
+                <td>Minimum viable price (covers costs + slim margin)</td>
+            </tr>
+            <tr class="target-row">
+                <td>Target</td>
+                <td class="price-amount">{{ "{:,.0f}".format(result.price_target) }} {{ result.currency.value }}</td>
+                <td>Recommended price (balanced across all factors)</td>
+            </tr>
+            <tr>
+                <td>Stretch</td>
+                <td class="price-amount">{{ "{:,.0f}".format(result.price_stretch) }} {{ result.currency.value }}</td>
+                <td>Premium positioning (favorable conditions)</td>
+            </tr>
+        </tbody>
     </table>
-    <p><strong>Structure:</strong> {{ result.suggested_structure }}</p>
-    <p class="confidence">Confidence: {{ "{:.0%}".format(result.confidence) }}</p>
 
+    <div class="structure-box">
+        <strong>Recommended Structure:</strong> {{ result.suggested_structure }}
+    </div>
+
+    <!-- Rationale -->
     <h2>Rationale</h2>
     <p>{{ result.rationale }}</p>
 
+    <!-- Pricing Structure -->
     {% if result.packaging %}
     <h2>Pricing Structure</h2>
     <p><strong>{{ result.packaging.recommended_structure }}</strong></p>
@@ -51,14 +210,18 @@
     </ul>
     {% endif %}
     <p>{{ result.packaging.reasoning }}</p>
+    {% if result.packaging.alternatives %}
+    <p class="kv"><strong>Alternatives considered:</strong> {{ result.packaging.alternatives | join("; ") }}</p>
+    {% endif %}
     {% endif %}
 
+    <!-- Negotiation Strategy -->
     {% if result.negotiation %}
-    <h2>Negotiation Strategy</h2>
+    <h2 class="page-break">Negotiation Strategy</h2>
     <table class="neg-table">
-        <tr><td>Anchor (open at)</td><td>{{ "{:,.0f}".format(result.negotiation.anchor_price) }} {{ result.currency.value }}</td></tr>
-        <tr><td>Target (close at)</td><td>{{ "{:,.0f}".format(result.price_target) }} {{ result.currency.value }}</td></tr>
-        <tr><td>Walk Away (minimum)</td><td>{{ "{:,.0f}".format(result.negotiation.walk_away_price) }} {{ result.currency.value }}</td></tr>
+        <tr><td>Anchor (open at)</td><td class="price-amount">{{ "{:,.0f}".format(result.negotiation.anchor_price) }} {{ result.currency.value }}</td></tr>
+        <tr><td>Target (close at)</td><td class="price-amount">{{ "{:,.0f}".format(result.price_target) }} {{ result.currency.value }}</td></tr>
+        <tr><td>Walk Away (minimum)</td><td class="price-amount">{{ "{:,.0f}".format(result.negotiation.walk_away_price) }} {{ result.currency.value }}</td></tr>
     </table>
 
     {% if result.negotiation.tactics %}
@@ -89,6 +252,7 @@
     {% endif %}
     {% endif %}
 
+    <!-- Assumptions & Risk -->
     <h2>Assumptions</h2>
     <ul>
         {% for a in result.assumptions %}
@@ -102,15 +266,20 @@
         <li>{{ r }}</li>
         {% endfor %}
     </ul>
-    <p>Risk adjustment applied: +{{ "{:.0f}".format(result.risk_assessment.risk_adjustment_pct) }}%</p>
+    <p class="kv"><strong>Risk adjustment applied:</strong> +{{ "{:.0f}".format(result.risk_assessment.risk_adjustment_pct) }}%</p>
 
+    <!-- Validation -->
     {% if result.validation %}
-    <h2>Validation: {% if result.validation.is_valid %}Passed{% else %}Issues Found{% endif %}</h2>
+    <h2>Validation</h2>
+    <p class="{{ 'validation-pass' if result.validation.is_valid else 'validation-fail' }}">
+        <strong>{{ "PASSED" if result.validation.is_valid else "ISSUES FOUND" }}</strong>
+    </p>
     <p>{{ result.validation.summary }}</p>
     {% endif %}
 
+    <!-- Discovery Questions -->
     {% if result.discovery %}
-    <h2>Discovery Questions</h2>
+    <h2 class="page-break">Discovery Questions</h2>
     {% if result.discovery.standard_questions %}
     <h3>Ask the Decision-Maker</h3>
     <ol>
@@ -137,8 +306,9 @@
     {% endif %}
     {% endif %}
 
-    <div class="footer">
-        Generated by Pricing | {{ timestamp }} | Confidential
+    <div class="report-footer">
+        Generated by Pricing Intelligence | {{ timestamp[:10] if timestamp else '' }} | Confidential
     </div>
+
 </body>
 </html>

@@ -924,6 +924,66 @@ section li::marker {
 .target-color { color: var(--accent-blue); font-weight: 600; font-family: var(--font-mono); }
 .stretch-color { color: var(--accent-green); font-weight: 600; font-family: var(--font-mono); }
 
+/* === TOOLTIPS === */
+.tip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background: var(--border-dim);
+    color: var(--text-dim);
+    font-size: 0.6rem;
+    font-style: italic;
+    font-weight: 700;
+    cursor: help;
+    position: relative;
+    vertical-align: middle;
+    margin-left: 0.3rem;
+    text-transform: lowercase;
+}
+
+.tip:hover {
+    background: var(--accent-blue);
+    color: #fff;
+}
+
+.tip:hover::after {
+    content: attr(title);
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--bg-elevated);
+    color: var(--text-primary);
+    padding: 0.6rem 0.8rem;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-subtle);
+    font-size: 0.78rem;
+    font-weight: 400;
+    font-style: normal;
+    line-height: 1.5;
+    letter-spacing: 0;
+    text-transform: none;
+    white-space: normal;
+    width: 260px;
+    z-index: 100;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    pointer-events: none;
+}
+
+.tip:hover::before {
+    content: '';
+    position: absolute;
+    bottom: calc(100% + 2px);
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: var(--border-subtle);
+    z-index: 101;
+}
+
 /* === FORM SECTIONS === */
 .form-section {
     background: var(--bg-surface);

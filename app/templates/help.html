@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="result">
+    <h2>How to Use Pricing</h2>
+
+    <section>
+        <h3>What This App Does</h3>
+        <p>Pricing runs a swarm of 10 AI agents to generate a defensible price recommendation for B2B services. Each agent analyzes your deal from a different angle:</p>
+        <ul>
+            <li><strong>Research Agent</strong> -- scrapes the client's website to understand their business</li>
+            <li><strong>Cost Agent</strong> -- estimates your delivery costs and sets a floor price</li>
+            <li><strong>Market Agent</strong> -- benchmarks against what the market charges for comparable work</li>
+            <li><strong>Value Agent</strong> -- estimates the ROI and business value for the client</li>
+            <li><strong>Risk Agent</strong> -- assesses delivery risks and adjusts the price upward</li>
+            <li><strong>Packaging Agent</strong> -- recommends how to structure the pricing (project fee, retainer, phased)</li>
+            <li><strong>Negotiation Agent</strong> -- builds a negotiation playbook with tactics and concession strategy</li>
+            <li><strong>Discovery Agent</strong> -- generates questions to ask the client to gather more pricing intel</li>
+            <li><strong>Arbiter Agent</strong> -- synthesizes all specialist inputs into a final recommendation</li>
+            <li><strong>Validator Agent</strong> -- sanity-checks the final output before presenting</li>
+        </ul>
+    </section>
+
+    <section>
+        <h3>Quick Start</h3>
+        <ol>
+            <li>Go to <strong>Businesses</strong> and create a client business (name, URL, location)</li>
+            <li>Go to <strong>Services</strong> and create a service template (what you offer, hours, rate)</li>
+            <li>Go to the business page and click a service to start pricing</li>
+            <li>Fill in the structured insights (competitor intel, client signals, delivery speed)</li>
+            <li>Click <strong>Get Pricing</strong> and wait 30-90 seconds for the agents to run</li>
+            <li>Review the result: floor / target / stretch prices, negotiation playbook, discovery questions</li>
+        </ol>
+    </section>
+
+    <section>
+        <h3>Understanding the Output</h3>
+        <ul>
+            <li><strong>Floor</strong> -- the minimum price to not lose money (covers costs + slim margin)</li>
+            <li><strong>Target</strong> -- the recommended price (balanced across cost, market, value, and risk)</li>
+            <li><strong>Stretch</strong> -- the aspirational price (favorable conditions, premium positioning)</li>
+            <li><strong>Confidence</strong> -- how confident the system is (higher = more data, clearer scope)</li>
+        </ul>
+    </section>
+
+    <section>
+        <h3>The Negotiation Playbook</h3>
+        <p>The Negotiation Agent produces a strategy for closing the deal:</p>
+        <ul>
+            <li><strong>Anchor price</strong> -- your opening ask (always higher than target, because the client will negotiate down)</li>
+            <li><strong>Target price</strong> -- what you actually want to close at</li>
+            <li><strong>Walk-away price</strong> -- the absolute minimum you'll accept</li>
+            <li><strong>Concession ladder</strong> -- planned concessions in order, each smaller than the last</li>
+            <li><strong>Objection responses</strong> -- how to counter common pushbacks ("too expensive", "we got a lower quote")</li>
+            <li><strong>Tactics</strong> -- specific negotiation tactics for this deal (anchoring, bracketing, silence)</li>
+        </ul>
+    </section>
+
+    <section>
+        <h3>Discovery Questions</h3>
+        <p>Use these questions to gather intelligence before or during pricing:</p>
+        <ul>
+            <li><strong>Ask the Decision-Maker</strong> -- professional questions to ask the client directly</li>
+            <li><strong>Business-Specific</strong> -- tailored questions about their industry and situation</li>
+            <li><strong>Indirect Questions</strong> -- ask employees or partners who may reveal intel</li>
+            <li><strong>Signals to Listen For</strong> -- what their answers reveal about willingness to pay</li>
+        </ul>
+    </section>
+
+    <section>
+        <h3>Structured Insights</h3>
+        <p>The more intel you provide, the better the pricing. Key sections:</p>
+        <ul>
+            <li><strong>Your Costs</strong> -- hours estimate and hourly rate set the cost floor</li>
+            <li><strong>Delivery Speed</strong> -- fast delivery triggers an urgency premium</li>
+            <li><strong>Competitor Intelligence</strong> -- if the client uses a similar service, enter the URL and price. We'll auto-compare features</li>
+            <li><strong>Client Signals</strong> -- WTP signals, priorities, deal breakers, and budget hints directly influence the price</li>
+            <li><strong>Location</strong> -- provider and client location adjust all pricing for local market rates</li>
+        </ul>
+    </section>
+
+    <section>
+        <h3>Tips</h3>
+        <ul>
+            <li>Fill in <strong>Your Location</strong> and <strong>Client Location</strong> -- it dramatically changes the pricing for international deals</li>
+            <li>Use the <strong>Re-run with Changes</strong> button to see how adding insights changes the price</li>
+            <li>Check the <strong>Specialist Agent Details</strong> at the bottom of each result to see what each agent individually recommended</li>
+            <li>Use the <strong>Feedback widget</strong> (? button, bottom-right) to report bugs or suggestions</li>
+            <li>Export results as PDF for client presentations</li>
+        </ul>
+    </section>
+
+    <a href="/" class="back-btn">Start Pricing</a>
+</div>
+{% endblock %}

@@ -12,8 +12,8 @@
                 <span class="stat-label">Free Runs Left</span>
             </div>
             <div class="stat-card">
-                <span class="stat-number">{{ "Yes" if user.openrouter_key else "No" }}</span>
-                <span class="stat-label">Own API Key</span>
+                <span class="stat-number">{{ "Personal" if user.openrouter_key else "Server" }}</span>
+                <span class="stat-label">Active API Key</span>
             </div>
         </div>
         {% if user and user.credits_remaining is not none and user.credits_remaining <= 0 and not user.openrouter_key %}

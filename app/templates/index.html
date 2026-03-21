@@ -8,7 +8,7 @@
         <h3 class="section-title">Business & Service</h3>
         <div class="form-row">
             <div class="form-group">
-                <label for="business_id">Client Business</label>
+                <label for="business_id">Client Business <span class="tip" title="Select a saved business or leave blank for a one-off pricing">i</span></label>
                 <select id="business_id" name="business_id">
                     <option value="">-- Select or leave blank --</option>
                     {% for biz in businesses %}
@@ -18,7 +18,7 @@
                 <span class="field-hint"><a href="/businesses/new" class="hint-link">+ New business</a></span>
             </div>
             <div class="form-group">
-                <label for="service_template_id">Service Template</label>
+                <label for="service_template_id">Service Template <span class="tip" title="Pre-fills the form with saved service details (hours, rate, description)">i</span></label>
                 <select id="service_template_id" name="service_template_id">
                     <option value="">-- Custom service --</option>
                     {% for svc in services %}
@@ -29,29 +29,28 @@
             </div>
         </div>
         <div class="form-group">
-            <label for="business_url">Client Business URL</label>
+            <label for="business_url">Client Business URL <span class="tip" title="Enter the client's website. We'll auto-research their business, industry, and size.">i</span></label>
             <input type="text" id="business_url" name="business_url"
                 placeholder="https://example.com"
                 value="{{ prefill.get('business_url', '') }}"
                 required>
-            <span class="field-hint">We'll research the business automatically</span>
         </div>
         <div class="form-row">
             <div class="form-group">
-                <label for="provider_location">Your Location</label>
+                <label for="provider_location">Your Location <span class="tip" title="Where you (the provider) are based. Affects labor rate calculations in the Cost Agent.">i</span></label>
                 <input type="text" id="provider_location" name="provider_location"
                     placeholder="Santiago, Chile"
                     value="{{ prefill.get('provider_location', '') }}">
             </div>
             <div class="form-group">
-                <label for="client_location">Client Location</label>
+                <label for="client_location">Client Location <span class="tip" title="Where the client operates. The Market Agent uses this to benchmark against their local market rates.">i</span></label>
                 <input type="text" id="client_location" name="client_location"
                     placeholder="Sydney, Australia"
                     value="{{ prefill.get('client_location', '') }}">
             </div>
         </div>
         <div class="form-group">
-            <label for="service_description">Service Description</label>
+            <label for="service_description">Service Description <span class="tip" title="Describe what you're offering. Be specific about scope, deliverables, and duration. More detail = better pricing.">i</span></label>
             <textarea id="service_description" name="service_description" rows="3"
                 placeholder="Describe the service you are offering. Scope, deliverables, duration."
                 required>{{ prefill.get('service_description', '') }}</textarea>
@@ -63,20 +62,20 @@
         <h3 class="section-title">Your Costs</h3>
         <div class="form-row">
             <div class="form-group">
-                <label for="our_hours_estimate">Estimated Hours</label>
+                <label for="our_hours_estimate">Estimated Hours <span class="tip" title="Your estimate of total hours to deliver this service. The Cost Agent uses this to calculate the floor price.">i</span></label>
                 <input type="number" id="our_hours_estimate" name="our_hours_estimate" step="0.5" min="0"
                     placeholder="Total hours to deliver"
                     value="{{ prefill.get('our_hours_estimate', '') }}">
             </div>
             <div class="form-group">
-                <label for="our_hourly_rate">Your Hourly Rate</label>
+                <label for="our_hourly_rate" id="hourly_rate_label">Your Hourly Rate (<span id="rate_currency">USD</span>) <span class="tip" title="Your cost per hour (opportunity cost). Used to calculate the minimum price floor. Enter in your selected currency.">i</span></label>
                 <input type="number" id="our_hourly_rate" name="our_hourly_rate" step="0.01" min="0"
                     placeholder="Your opportunity cost per hour"
                     value="{{ prefill.get('our_hourly_rate', '') }}">
             </div>
         </div>
         <div class="form-group">
-            <label>Delivery Speed</label>
+            <label>Delivery Speed <span class="tip" title="Fast delivery adds an urgency premium (20-50%) to the price. Agents will factor this into their estimates.">i</span></label>
             <div class="radio-row">
                 <label class="radio-label">
                     <input type="radio" name="delivery_speed" value="normal" checked> Normal
@@ -109,19 +108,18 @@
             <label class="toggle-label">
                 <input type="checkbox" id="has_competitor" name="has_competitor"
                     onchange="document.getElementById('competitor-details').style.display = this.checked ? 'block' : 'none'">
-                Does the client currently use a similar service?
+                Does the client currently use a similar service? <span class="tip" title="If the client already pays for something similar, we can compare features and use their current spend as a pricing anchor.">i</span>
             </label>
         </div>
         <div id="competitor-details" style="display: none;">
             <div class="form-row">
                 <div class="form-group">
-                    <label for="competitor_url">Competitor Service URL</label>
+                    <label for="competitor_url">Competitor Service URL <span class="tip" title="We'll scrape this site and compare their features with yours automatically.">i</span></label>
                     <input type="text" id="competitor_url" name="competitor_url"
                         placeholder="https://competitor.com">
-                    <span class="field-hint">We'll scrape and compare features</span>
                 </div>
                 <div class="form-group">
-                    <label for="competitor_monthly_price">Monthly Price They Pay</label>
+                    <label for="competitor_monthly_price">Monthly Price They Pay <span class="tip" title="What the client currently pays per month for the competitor's service. Helps anchor our pricing.">i</span></label>
                     <input type="number" id="competitor_monthly_price" name="competitor_monthly_price"
                         step="0.01" min="0" placeholder="e.g. 500">
                 </div>
@@ -145,12 +143,12 @@
     <div class="form-section">
         <h3 class="section-title">Client Signals</h3>
         <div class="form-group">
-            <label for="wtp_signals">Willingness to Pay Signals</label>
+            <label for="wtp_signals">Willingness to Pay Signals <span class="tip" title="Any clues about what the client is willing to pay: budget mentions, reactions to prices, 'that's cheap/expensive' comments.">i</span></label>
             <textarea id="wtp_signals" name="wtp_signals" rows="2"
                 placeholder="What has the client said about budget? Any reactions to prices mentioned?"></textarea>
         </div>
         <div class="form-group">
-            <label>Owner Priorities</label>
+            <label>Owner Priorities <span class="tip" title="What matters most to the client? This affects how the agents weight their analysis.">i</span></label>
             <div class="checkbox-row">
                 <label class="checkbox-label"><input type="checkbox" name="owner_priorities" value="speed"> Speed</label>
                 <label class="checkbox-label"><input type="checkbox" name="owner_priorities" value="quality"> Quality</label>
@@ -162,12 +160,12 @@
         </div>
         <div class="form-row">
             <div class="form-group">
-                <label for="deal_breakers">Deal Breakers</label>
+                <label for="deal_breakers">Deal Breakers <span class="tip" title="What would make the client walk away? Price ceiling, timeline requirement, specific feature they need?">i</span></label>
                 <textarea id="deal_breakers" name="deal_breakers" rows="2"
                     placeholder="What would make them walk away?"></textarea>
             </div>
             <div class="form-group">
-                <label for="budget_hint">Budget Hint</label>
+                <label for="budget_hint">Budget Hint <span class="tip" title="Any specific budget number the client mentioned. The agents will not exceed this as the 'official' price.">i</span></label>
                 <input type="number" id="budget_hint" name="budget_hint" step="0.01" min="0"
                     placeholder="Amount they mentioned"
                     value="{{ prefill.get('budget_hint', '') }}">
@@ -203,7 +201,7 @@
                 </select>
             </div>
             <div class="form-group">
-                <label for="model_tier">Model</label>
+                <label for="model_tier">Model <span class="tip" title="Premium uses a paid AI model for the Arbiter and Negotiation agents (better reasoning). Free uses rotating free models for everything.">i</span></label>
                 <select id="model_tier" name="model_tier">
                     {% for tier in model_tiers %}
                     <option value="{{ tier.id }}" {% if tier.id == current_model %}selected{% endif %}>{{ tier.label }}</option>
@@ -239,6 +237,13 @@ document.getElementById('pricing-form').addEventListener('submit', function() {
     document.getElementById('loading').classList.remove('hidden');
 });
 
+// Update hourly rate label when currency changes
+document.getElementById('currency').addEventListener('change', function() {
+    document.getElementById('rate_currency').textContent = this.value;
+});
+// Set initial value
+document.getElementById('rate_currency').textContent = document.getElementById('currency').value;
+
 // Auto-populate form fields when a service template is selected
 document.getElementById('service_template_id').addEventListener('change', function() {
     var svcId = this.value;
@@ -247,7 +252,6 @@ document.getElementById('service_template_id').addEventListener('change', functi
         .then(function(r) { return r.json(); })
         .then(function(svc) {
             if (svc.error) return;
-            var f = document.getElementById;
             if (svc.description) document.getElementById('service_description').value = svc.description;
             if (svc.default_constraints) document.getElementById('constraints').value = svc.default_constraints;
             if (svc.estimated_hours) document.getElementById('our_hours_estimate').value = svc.estimated_hours;
